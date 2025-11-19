@@ -11,7 +11,6 @@
 </head>
 <body>
 
-<%= session.getAttribute("loginUser") %><br>
 <% if (loginUser == null) { %>
     <!-- 로그인 안된 상태 -->
     <a href="<%= request.getContextPath() %>/member/login.jsp">로그인</a> |
@@ -25,6 +24,10 @@
 <hr>
 
 <h2>KoStock 메인 화면</h2>
-
+	<p>
+    	<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">
+        	자유게시판 바로가기
+    	</a>
+	</p>
 </body>
 </html>
