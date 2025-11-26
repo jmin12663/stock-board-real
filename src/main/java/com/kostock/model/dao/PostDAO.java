@@ -37,50 +37,7 @@ public class PostDAO {
         return result;
     }
 
-    // 카테고리별 전체 목록 (ex. 자유게시판, 정보게시판 등)
-    public List<PostDTO> selectPostListByCategory(int categoryId) {
-
-        List<PostDTO> list = new ArrayList<>();
-
-        String sql =
-            "SELECT post_id, userid, category_id, stock_code, " +
-            "       title, created_at, view_count, " +
-            "       ROW_NUMBER() OVER (ORDER BY post_id DESC) AS list_no " +  // ★ 추가
-            "FROM POST " +
-            "WHERE category_id = ? " +
-            "ORDER BY post_id ASC";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setInt(1, categoryId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    PostDTO dto = new PostDTO();
-                    dto.setPostId(rs.getInt("post_id"));
-                    dto.setUserid(rs.getString("userid"));
-                    dto.setCategoryId(rs.getInt("category_id"));
-                    dto.setStockCode(rs.getString("stock_code"));
-                    dto.setTitle(rs.getString("title"));
-                    dto.setCreatedAt(rs.getDate("created_at"));
-                    dto.setViewCount(rs.getInt("view_count"));
-
-                    // ★ 여기서 화면용 번호 세팅
-                    dto.setListNo(rs.getInt("list_no"));
-
-                    list.add(dto);
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
-
-    // 게시글 상세 조회
+ // 게시글 상세 조회
     public PostDTO selectPostById(int postId) {
         PostDTO dto = null;
 
@@ -116,6 +73,76 @@ public class PostDAO {
         return dto;
     }
 
+    // 게시글 상세 조회
+    public List<PostDTO> selectPostListByCategoryPaging(int categoryId, int page, int pageSize) {
+
+        List<PostDTO> list = new ArrayList<>();
+
+        int start = (page - 1) * pageSize + 1; // 1-based
+        int end = page * pageSize;
+
+        String sql =
+            "SELECT * FROM ( " +
+            "   SELECT post_id, userid, category_id, stock_code, " +
+            "          title, created_at, view_count, " +
+            "          ROW_NUMBER() OVER (ORDER BY post_id ASC) AS list_no " +
+            "   FROM POST " +
+            "   WHERE category_id = ? " +
+            ") " +
+            "WHERE list_no BETWEEN ? AND ? " +
+            "ORDER BY list_no ASC";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, categoryId);
+            pstmt.setInt(2, start);
+            pstmt.setInt(3, end);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    PostDTO dto = new PostDTO();
+                    dto.setPostId(rs.getInt("post_id"));
+                    dto.setUserid(rs.getString("userid"));
+                    dto.setCategoryId(rs.getInt("category_id"));
+                    dto.setStockCode(rs.getString("stock_code"));
+                    dto.setTitle(rs.getString("title"));
+                    dto.setCreatedAt(rs.getDate("created_at"));
+                    dto.setViewCount(rs.getInt("view_count"));
+                    dto.setListNo(rs.getInt("list_no")); // 화면용 No
+
+                    list.add(dto);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    //카테고리 별 글 개수
+    public int getPostCountByCategory(int categoryId) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM POST WHERE category_id = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, categoryId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) count = rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
     // 조회수 +1
     public void increaseViewCount(int postId) {
         String sql = "UPDATE POST SET view_count = view_count + 1 "
@@ -131,4 +158,67 @@ public class PostDAO {
             e.printStackTrace();
         }
     }
+    
+ // 작성자 본인 글인지 체크 (보안용)
+    public boolean isOwner(int postId, String userid) {
+        boolean ok = false;
+        String sql = "SELECT COUNT(*) FROM POST WHERE post_id=? AND userid=?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, postId);
+            pstmt.setString(2, userid);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) ok = (rs.getInt(1) == 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ok;
+    }
+
+    // 수정
+    public int updatePost(PostDTO dto) {
+        int result = 0;
+
+        String sql = "UPDATE POST "
+                   + "SET title=?, content=?, stock_code=?, updated_at=SYSDATE "
+                   + "WHERE post_id=?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, dto.getTitle());
+            pstmt.setString(2, dto.getContent());
+            pstmt.setString(3, dto.getStockCode()); // null 가능
+            pstmt.setInt(4, dto.getPostId());
+
+            result = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // 삭제(댓글 먼저 지워야 FK 안전)
+    public int deletePost(int postId) {
+        int result = 0;
+
+        String sql = "DELETE FROM POST WHERE post_id=?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, postId);
+            result = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }

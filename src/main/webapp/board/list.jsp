@@ -5,6 +5,8 @@
     List<PostDTO> postList = (List<PostDTO>) request.getAttribute("postList");
     int categoryId = (request.getAttribute("categoryId") == null) ? 1
                     : (Integer) request.getAttribute("categoryId");
+    int currentpage = (request.getAttribute("page") == null) ? 1 : (Integer) request.getAttribute("page");
+    int totalPages = (request.getAttribute("totalPages") == null) ? 1 : (Integer) request.getAttribute("totalPages");
 %>
 <!DOCTYPE html>
 <html>
@@ -52,6 +54,33 @@
     %>
 </table>
 
+
+<div>
+    <%-- 이전 --%>
+    <% if (currentpage > 1) { %>
+        <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage-1 %>">이전</a>
+    <% } %>
+
+    <%-- 페이지 번호들 --%>
+    <%
+        for (int p = 1; p <= totalPages; p++) {
+            if (p == currentpage) {
+    %>
+                <b>[<%= p %>]</b>
+    <%
+            } else {
+    %>
+                <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= p %>">[<%= p %>]</a>
+    <%
+            }
+        }
+    %>
+
+    <%-- 다음 --%>
+    <% if (currentpage < totalPages) { %>
+        <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage+1 %>">다음</a>
+    <% } %>
+</div>
 <br>
 
 <a href="<%= request.getContextPath() %>/board/writeForm.do?categoryId=<%= categoryId %>">

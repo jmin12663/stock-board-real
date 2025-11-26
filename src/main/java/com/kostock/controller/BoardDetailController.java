@@ -4,7 +4,10 @@ import java.io.IOException;
 
 import com.kostock.model.dao.PostDAO;
 import com.kostock.model.dto.PostDTO;
+import com.kostock.model.dao.CommentDAO;
+import com.kostock.model.dto.CommentDTO;
 
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -43,12 +46,18 @@ public class BoardDetailController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/board/list.do?categoryId=1");
             return;
         }
+        
+        CommentDAO cdao = new CommentDAO();
+        List<CommentDTO> comments = cdao.selectCommentsByPostId(postId);
 
-        // 3. JSP에서 쓸 데이터 저장
+     // 3. JSP에서 쓸 데이터 저장
         request.setAttribute("post", post);
+        request.setAttribute("comments", comments);
+        request.setAttribute("postId", postId);
 
-        // 4. 화면으로 포워드
+     // 4. 화면으로 포워드
         request.getRequestDispatcher("/board/detail.jsp")
                .forward(request, response);
     }
+
 }

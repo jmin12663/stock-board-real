@@ -65,4 +65,21 @@ public class CommentDAO {
 
         return list;
     }
+    // 게시글 삭제 시 댓글 전부 삭제
+    public int deleteCommentsByPostId(int postId) {
+        int result = 0;
+        String sql = "DELETE FROM COMMENTS WHERE post_id=?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, postId);
+            result = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }
