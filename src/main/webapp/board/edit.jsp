@@ -26,7 +26,12 @@
 </form>
 
 <br>
-<a href="<%= request.getContextPath() %>/board/detail.do?postId=<%= post.getPostId() %>">취소</a>
+<!-- <a href="<%= request.getContextPath() %>/board/detail.do?postId=<%= post.getPostId() %>">취소</a> -->
+
+<form action="<%= request.getContextPath() %>/board/detail.do" method="get" style="display:inline;">
+    <input type="hidden" name="PostId" value="<%= post.getPostId() %>">
+    <button type="submit">취소</button>
+</form>
 
 </body>
 </html>

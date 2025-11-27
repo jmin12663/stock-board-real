@@ -73,7 +73,7 @@ public class PostDAO {
         return dto;
     }
 
-    // 게시글 상세 조회
+    // 게시글 페이징
     public List<PostDTO> selectPostListByCategoryPaging(int categoryId, int page, int pageSize) {
 
         List<PostDTO> list = new ArrayList<>();
@@ -220,5 +220,83 @@ public class PostDAO {
         }
         return result;
     }
+    
+    public int getPostCountByCategorySearch(int categoryId, String field, String searchWord) {
+        int count = 0;
 
+        String where;
+        if ("content".equals(field)) {
+            where = "DBMS_LOB.INSTR(content, ?) > 0";
+        } else { // title
+            where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
+        }
+
+        String sql = "SELECT COUNT(*) FROM POST WHERE category_id = ? AND " + where;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, categoryId);
+            pstmt.setString(2, searchWord);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+    public List<PostDTO> selectPostListByCategorySearchPaging(int categoryId, String field, String searchWord,
+            int page, int pageSize) {
+    	List<PostDTO> list = new ArrayList<>();
+    	int start = (page - 1) * pageSize + 1;
+    	int end = page * pageSize;
+
+    	String where;
+    	if ("content".equals(field)) {
+    		where = "DBMS_LOB.INSTR(content, ?) > 0";
+    	} else { // title
+    		where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
+    	}
+
+    	String sql =
+    			"SELECT * FROM ( " +
+    					"   SELECT post_id, userid, category_id, stock_code, title, created_at, view_count, " +
+    					"          ROW_NUMBER() OVER (ORDER BY post_id ASC) AS list_no " +
+    					"   FROM POST " +
+    					"   WHERE category_id = ? AND " + where +
+    					") WHERE list_no BETWEEN ? AND ? " +
+    					"ORDER BY list_no ASC";
+
+    	try (Connection conn = DBUtil.getConnection();
+    			PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+    		pstmt.setInt(1, categoryId);
+    		pstmt.setString(2, searchWord);
+    		pstmt.setInt(3, start);
+    		pstmt.setInt(4, end);
+
+    		try (ResultSet rs = pstmt.executeQuery()) {
+    			while (rs.next()) {
+    				PostDTO dto = new PostDTO();
+    				dto.setPostId(rs.getInt("post_id"));
+    				dto.setUserid(rs.getString("userid"));
+    				dto.setCategoryId(rs.getInt("category_id"));
+    				dto.setStockCode(rs.getString("stock_code"));
+    				dto.setTitle(rs.getString("title"));
+    				dto.setCreatedAt(rs.getDate("created_at"));
+    				dto.setViewCount(rs.getInt("view_count"));
+    				dto.setListNo(rs.getInt("list_no"));
+    				list.add(dto);
+    			}
+    		}
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+
+    	return list;
+    }
+    
 }

@@ -1,12 +1,28 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.kostock.model.dto.PostDTO" %>
+<%@ page import="java.net.URLEncoder" %>
 <%
     List<PostDTO> postList = (List<PostDTO>) request.getAttribute("postList");
     int categoryId = (request.getAttribute("categoryId") == null) ? 1
                     : (Integer) request.getAttribute("categoryId");
     int currentpage = (request.getAttribute("page") == null) ? 1 : (Integer) request.getAttribute("page");
     int totalPages = (request.getAttribute("totalPages") == null) ? 1 : (Integer) request.getAttribute("totalPages");
+    
+    String searchWord = request.getParameter("searchWord");
+    if (searchWord == null) {
+        searchWord = (String) request.getAttribute("searchWord");
+    }
+    
+    String field = request.getParameter("field");
+    if (field == null) field = (String)request.getAttribute("field");
+    if (field == null) field = "title"; // 기본
+    
+    String q = "";
+    if (searchWord != null && !searchWord.isEmpty()) {
+        q = "&field=" + field + "&searchWord=" + URLEncoder.encode(searchWord, "UTF-8");
+    }
+
 %>
 <!DOCTYPE html>
 <html>
@@ -17,6 +33,21 @@
 <body>
 
 <h2>게시판 목록 (카테고리 ID: <%= categoryId %>)</h2>
+<!--  검색 폼, list.do로 요청 -->
+<form method="get" action="<%= request.getContextPath() %>/board/list.do" style="margin-bottom:10px;">
+  <input type="hidden" name="categoryId" value="<%= categoryId %>">
+  <input type="hidden" name="page" value="1">
+
+  <select name="field">
+    <option value="title" <%= "title".equals(field) ? "selected" : "" %>>제목</option>
+    <option value="content" <%= "content".equals(field) ? "selected" : "" %>>내용</option>
+  </select>
+
+  <input type="text" name="searchWord"
+         value="<%= (searchWord == null) ? "" : searchWord %>"
+         placeholder="검색어 입력" />
+  <button type="submit">검색하기</button>
+</form>
 
 <table border="1" cellspacing="0" cellpadding="5">
     <tr>
@@ -58,7 +89,7 @@
 <div>
     <%-- 이전 --%>
     <% if (currentpage > 1) { %>
-        <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage-1 %>">이전</a>
+        <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage-1 %><%= q %>">이전</a>
     <% } %>
 
     <%-- 페이지 번호들 --%>
@@ -70,7 +101,7 @@
     <%
             } else {
     %>
-                <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= p %>">[<%= p %>]</a>
+                <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= p %><%= q %>">[<%= p %>]</a>
     <%
             }
         }
@@ -78,7 +109,7 @@
 
     <%-- 다음 --%>
     <% if (currentpage < totalPages) { %>
-        <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage+1 %>">다음</a>
+        <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage+1 %><%= q %>">다음</a>
     <% } %>
 </div>
 <br>
