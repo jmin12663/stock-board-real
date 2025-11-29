@@ -32,6 +32,11 @@
 </head>
 <body>
 
+<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
+<a href="<%= request.getContextPath() %>/index.jsp">홈페이지</a>
+<hr>
+
+
 <h2>게시판 목록 (카테고리 ID: <%= categoryId %>)</h2>
 <!--  검색 폼, list.do로 요청 -->
 <form method="get" action="<%= request.getContextPath() %>/board/list.do" style="margin-bottom:10px;">
