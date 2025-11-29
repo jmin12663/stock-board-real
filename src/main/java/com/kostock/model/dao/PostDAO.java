@@ -203,7 +203,7 @@ public class PostDAO {
         return result;
     }
 
-    // 삭제(댓글 먼저 지워야 FK 안전)
+    // 게시글 삭제
     public int deletePost(int postId) {
         int result = 0;
 
@@ -221,8 +221,9 @@ public class PostDAO {
         return result;
     }
     
+    // 카테고리 별 검색 후 게시글 조회
     public int getPostCountByCategorySearch(int categoryId, String field, String searchWord) {
-        int count = 0;
+        int count = 0; //게시글 갯수
 
         String where;
         if ("content".equals(field)) {
@@ -248,9 +249,11 @@ public class PostDAO {
 
         return count;
     }
+    
+    // 카테고리 별 검색 게시물 목록 조회
     public List<PostDTO> selectPostListByCategorySearchPaging(int categoryId, String field, String searchWord,
             int page, int pageSize) {
-    	List<PostDTO> list = new ArrayList<>();
+    	List<PostDTO> list = new ArrayList<>(); // 조회된 게시글 리스트
     	int start = (page - 1) * pageSize + 1;
     	int end = page * pageSize;
 

@@ -47,7 +47,7 @@ public class BoardListController extends HttpServlet {
             field = "title"; // 기본 + 화이트리스트
         }
         
-        // paging settings
+        // 보이는 게시글 갯수
         int pageSize = 10;
 
         PostDAO dao = new PostDAO();

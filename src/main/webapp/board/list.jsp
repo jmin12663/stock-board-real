@@ -1,8 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.kostock.model.dto.PostDTO" %>
+<%@ page import="com.kostock.model.dto.UserDTO" %>
 <%@ page import="java.net.URLEncoder" %>
 <%
+	UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
     List<PostDTO> postList = (List<PostDTO>) request.getAttribute("postList");
     int categoryId = (request.getAttribute("categoryId") == null) ? 1
                     : (Integer) request.getAttribute("categoryId");
@@ -32,7 +35,16 @@
 </head>
 <body>
 
-<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
+<% if (loginUser == null) { %>
+    <!-- 로그인 안된 상태 -->
+    <a href="<%= request.getContextPath() %>/member/login.jsp">로그인</a> |
+    <a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
+<% } else { %>
+    <!-- 로그인 된 상태 -->
+    <span><%= loginUser.getName() %>님 (역할: <%= loginUser.getRole() %>)</span>
+    <a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
+<% } %>
+
 <a href="<%= request.getContextPath() %>/index.jsp">홈페이지</a>
 <hr>
 
@@ -56,7 +68,7 @@
 
 <table border="1" cellspacing="0" cellpadding="5">
     <tr>
-        <th>No</th>
+        <th>번호</th>
         <th>제목</th>
         <th>작성자</th>
         <th>작성일</th>
