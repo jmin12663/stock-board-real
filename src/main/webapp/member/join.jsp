@@ -1,11 +1,19 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/css/main.css">
+
 <!DOCTYPE html>
+<%
+
+%>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>회원가입</title>
 </head>
 <body>
+<a href="<%= request.getContextPath() %>/member/login.jsp">로그인</a>
+<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>/a>
+<hr>
 
 <h2>회원가입</h2>
 

@@ -85,7 +85,7 @@ public class PostDAO {
             "SELECT * FROM ( " +
             "   SELECT post_id, userid, category_id, stock_code, " +
             "          title, created_at, view_count, " +
-            "          ROW_NUMBER() OVER (ORDER BY post_id ASC) AS list_no " +
+            "          ROW_NUMBER() OVER (ORDER BY post_id DESC) AS list_no " +
             "   FROM POST " +
             "   WHERE category_id = ? " +
             ") " +
@@ -267,7 +267,7 @@ public class PostDAO {
     	String sql =
     			"SELECT * FROM ( " +
     					"   SELECT post_id, userid, category_id, stock_code, title, created_at, view_count, " +
-    					"          ROW_NUMBER() OVER (ORDER BY post_id ASC) AS list_no " +
+    					"          ROW_NUMBER() OVER (ORDER BY post_id DESC) AS list_no " +
     					"   FROM POST " +
     					"   WHERE category_id = ? AND " + where +
     					") WHERE list_no BETWEEN ? AND ? " +

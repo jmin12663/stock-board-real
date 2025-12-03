@@ -1,7 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.kostock.model.dto.UserDTO" %>
 <%
-    UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+	response.sendRedirect(request.getContextPath() + "/board/list.do?categoryId=1");
+	UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+
 %>
 <!DOCTYPE html>
 <html>
@@ -14,7 +16,7 @@
 <% if (loginUser == null) { %>
     <!-- 로그인 안된 상태 -->
     <a href="<%= request.getContextPath() %>/member/login.jsp">로그인</a> |
-    <a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
+    <a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a> 
 <% } else { %>
     <!-- 로그인 된 상태 -->
     <span><%= loginUser.getName() %>님 (역할: <%= loginUser.getRole() %>)</span>
@@ -22,12 +24,9 @@
 <% } %>
 
 <hr>
-
 <h2>KoStock 메인 화면</h2>
-	<p>
-    	<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">
-        	자유게시판 바로가기
-    	</a>
-	</p>
+<jsp:include page="/common/nav.jsp" />
+
+
 </body>
 </html>

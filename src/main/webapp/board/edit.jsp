@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/css/main.css">
+
 <%@ page import="com.kostock.model.dto.PostDTO" %>
 <%@ page import="com.kostock.model.dto.UserDTO" %>
 <%
@@ -23,7 +25,7 @@
     <a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 <% } %>
 
-<a href="<%= request.getContextPath() %>/index.jsp">홈페이지</a>
+<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>
 <hr>
 
 <h2>게시글 수정</h2>

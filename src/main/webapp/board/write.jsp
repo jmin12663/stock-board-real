@@ -1,9 +1,15 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/css/main.css">
+
 <%@ page import="com.kostock.model.dto.UserDTO" %>
+<%@ page import="com.kostock.model.dto.PostDTO" %>
+
 <%
+	PostDTO post = (PostDTO) request.getAttribute("post");
 	UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
 	int categoryId = (request.getAttribute("categoryId") == null) ? 1
                     : (Integer) request.getAttribute("categoryId");
+	
 %>
 <!DOCTYPE html>
 <html>
@@ -23,18 +29,24 @@
     <a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 <% } %>
 
-<a href="<%= request.getContextPath() %>/index.jsp">홈페이지</a>
+<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>
 <hr>
 
 <h2>게시글 작성</h2>
 <form action="<%= request.getContextPath() %>/board/write.do" method="post">
     <input type="hidden" name="categoryId" value="<%= categoryId %>">
-    종목코드(선택): <input type="text" name="stockCode"><br><br>
+    <!--  종목코드(선택): <input type="text" name="stockCode"><br><br> -->
     제목: <input type="text" name="title" size="50"><br><br>
     내용:<br>
     <textarea name="content" cols="60" rows="10"></textarea><br><br>
     <button type="submit">작성하기</button>
+    
+	<button type="button"
+        onclick="location.href='<%=request.getContextPath()%>/board/list.do?categoryId=<%=categoryId%>'">
+    목록으로
+	</button>
 </form>
+
 
 </body>
 </html>

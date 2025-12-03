@@ -1,10 +1,19 @@
 package com.kostock.controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.kostock.model.dao.PostDAO;
+import com.kostock.model.dao.StockDAO;
+import com.kostock.model.dto.IndexSummaryDTO;
 import com.kostock.model.dto.PostDTO;
+import com.kostock.model.dto.StockPriceDTO;
+import com.kostock.service.IndexPriceService;
+
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,10 +29,14 @@ public class BoardListController extends HttpServlet {
     protected void doGet (HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // categoryId
+    	// 지수 데이터 오늘 것 없으면 자동 갱신
+        IndexPriceService indexService = new IndexPriceService();
+        indexService.refreshTodayIfNeeded();
+    	
+    	// categoryId
         int categoryId = 1;
         String categoryIdParam = request.getParameter("categoryId");
-        if (categoryIdParam != null) {
+        if (categoryIdParam != null && !categoryIdParam.isBlank()) {
             categoryId = Integer.parseInt(categoryIdParam);
         }
 
@@ -43,9 +56,10 @@ public class BoardListController extends HttpServlet {
         }
         //검색 옵션
         String field = request.getParameter("field");
-        if (!"title".equals(field) && !"content".equals(field)) {
-            field = "title"; // 기본 + 화이트리스트
+        if (!"title".equals(field) && !"content".equals(field) && !"stock".equals(field)) {
+            field = "title";
         }
+        
         
         // 보이는 게시글 갯수
         int pageSize = 10;
@@ -76,17 +90,44 @@ public class BoardListController extends HttpServlet {
 
             list = dao.selectPostListByCategoryPaging(categoryId, page, pageSize);
         }
+        
+        // 지수 요약 리스트
+        StockDAO stockDao = new StockDAO();
+        List<IndexSummaryDTO> indexList;
+        try {
+            indexList = stockDao.getIndexSummaries();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            indexList = Collections.emptyList(); // 오류 나도 NPE 안 나게 빈 리스트
+        }
+        
+     // 각 지수별 미니 차트용 일봉 데이터 Map
+        Map<String, List<StockPriceDTO>> indexPriceMap = new HashMap<>();
+
+        try {
+            for (IndexSummaryDTO idx : indexList) {
+                String code = idx.getStockCode();
+                // 최근 20일 정도만 가져오기 (원하면 숫자 조정)
+                List<StockPriceDTO> prices = stockDao.getDailyPrices(code, 20);
+                indexPriceMap.put(code, prices);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
 
         // 5) JSP로 전달
-        request.setAttribute("postList", list);
         request.setAttribute("categoryId", categoryId);
+        request.setAttribute("postList", list);
 
         request.setAttribute("page", page);
         request.setAttribute("pageSize", pageSize);
         request.setAttribute("totalCount", totalCount);
         request.setAttribute("totalPages", totalPages);
 
+        request.setAttribute("indexList", indexList);
+        request.setAttribute("indexPriceMap", indexPriceMap);
+        
         request.getRequestDispatcher("/board/list.jsp").forward(request, response);
     }
 }

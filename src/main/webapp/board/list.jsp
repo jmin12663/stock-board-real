@@ -1,8 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/css/main.css">
+
 <%@ page import="java.util.List" %>
 <%@ page import="com.kostock.model.dto.PostDTO" %>
 <%@ page import="com.kostock.model.dto.UserDTO" %>
 <%@ page import="java.net.URLEncoder" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+
+
 <%
 	UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
 
@@ -23,9 +29,8 @@
     
     String q = "";
     if (searchWord != null && !searchWord.isEmpty()) {
-        q = "&field=" + field + "&searchWord=" + URLEncoder.encode(searchWord, "UTF-8");
-    }
-
+    	q = "&field=" + field + "&searchWord=" + URLEncoder.encode(searchWord, "UTF-8"); }
+    
 %>
 <!DOCTYPE html>
 <html>
@@ -45,11 +50,16 @@
     <a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 <% } %>
 
-<a href="<%= request.getContextPath() %>/index.jsp">홈페이지</a>
+<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>
 <hr>
 
+<!-- 카테고리 -->
+<jsp:include page="/common/nav.jsp" />
 
 <h2>게시판 목록 (카테고리 ID: <%= categoryId %>)</h2>
+<!-- 지수 요약 바 및 차트 -->
+<jsp:include page="/common/chart.jsp" />
+
 <!--  검색 폼, list.do로 요청 -->
 <form method="get" action="<%= request.getContextPath() %>/board/list.do" style="margin-bottom:10px;">
   <input type="hidden" name="categoryId" value="<%= categoryId %>">
