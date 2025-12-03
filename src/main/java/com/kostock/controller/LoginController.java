@@ -1,6 +1,5 @@
 package com.kostock.controller;
 
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,9 +13,9 @@ import com.kostock.model.dao.UserDAO;
 import com.kostock.model.dto.UserDTO;
 
 @WebServlet("/member/login.do")
-public class LoginController extends HttpServlet{
+public class LoginController extends HttpServlet {
 	
-	@Override
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -33,11 +32,14 @@ public class LoginController extends HttpServlet{
             HttpSession session = request.getSession();
             session.setAttribute("loginUser", loginUser);
 
-            // 메인 페이지로 이동
+            // 메인 페이지로 이동 (원하는 곳으로)
             response.sendRedirect(request.getContextPath() + "/index.jsp");
         } else {
-            // 로그인 실패 → 다시 로그인 페이지
-            response.sendRedirect(request.getContextPath() + "/member/login.jsp");
+            // 로그인 실패 → 에러 메시지 담고 login.jsp로 forward
+            request.setAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
+
+            request.getRequestDispatcher("/member/login.jsp")
+                   .forward(request, response);
         }
     }
 }

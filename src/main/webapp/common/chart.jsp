@@ -3,7 +3,8 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="fn"  uri="jakarta.tags.functions" %>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/css/main.css">
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+
 
 <!DOCTYPE html>
 <html>
@@ -12,59 +13,10 @@
 <title>Insert title here</title>
 </head>
 <body>
+<div class="wrapper">
 
 <!-- 지수 요약 바  -->
-<style>
-    .index-bar {
-        display: flex;
-        gap: 8px;
-        padding: 8px 10px;
-        margin-bottom: 12px;
-        border: 1px solid #ddd;
-        background-color: #fafafa;
-        font-size: 13px;
-    }
 
-    .index-item {
-        flex: 1;
-        padding: 8px 10px;
-        border-right: 1px solid #eee;
-        display: flex;
-        flex-direction: column;   /* 위 텍스트 , 아래 차트 */
-        justify-content: space-between;
-    }
-    .index-item:last-child {
-        border-right: none;
-    }
-
-    .idx-header {
-        margin-bottom: 6px;
-    }
-
-    .idx-name {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 2px;
-    }
-
-    .idx-price {
-        margin-right: 6px;
-    }
-
-    .idx-change.up { color: red; }
-    .idx-change.down { color: blue; }
-    .idx-change.flat { color: gray; }
-
-    .idx-chart {
-        margin-top: 4px;
-        height: 80px;            /* ★ 차트 높이 */
-    }
-    .idx-chart canvas {
-        width: 100%;
-        height: 100%;            /* ★ 상자 꽉 차게 */
-        display: block;
-    }
-</style>
 
 <c:if test="${not empty indexList}">
     <div class="index-bar">
@@ -200,6 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-
+</div>
 </body>
 </html>

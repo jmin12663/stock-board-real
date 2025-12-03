@@ -1,0 +1,929 @@
+/*  Reset & 기본 세팅 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Sans KR", system-ui, sans-serif;
+    background-color: #f5f5f7;
+    color: #222;
+}
+
+/*  공통 wrapper */
+.wrapper {
+    width: 1100px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* --------------------------------------------------- 헤더 레이아웃 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.logo a {
+    font-size: 24px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #1a73e8;
+}
+
+/* 4) 오른쪽 네비게이션 정렬 (네가 원한 부분!) */
+.nav-right {
+    display: flex;
+    gap: 16px;
+    font-size: 15px;
+}
+
+.nav-right a {
+    text-decoration: none;
+    color: #555;
+}
+
+.nav-right a:hover {
+    color: #1a73e8;
+}
+
+/* ------------------------------------------------------카테고리*/
+/* 카테고리 바 전체 */
+.category-bar {
+  border-bottom: 1px solid #ddd;
+  padding: 12px 0;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 요소 간격 자동 정리 */
+}
+
+/* 기본 탭 링크 */
+.tab {
+  text-decoration: none;
+  font-size: 15px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  color: #555;
+  transition: 0.2s;
+}
+
+/* 활성화된 탭 */
+.tab.active {
+  border-color: #1a73e8;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+/* 마우스 올렸을 때 */
+.tab:hover {
+  border-color: #ccc;
+  color: #1a73e8;
+  background-color: #f0f4ff;
+}
+
+/* 매매기록 버튼 느낌 약간 다르게 */
+.tab-record {
+  margin-left: auto; /* ✅ 이건 오른쪽 끝으로 밀어줌 */
+  text-decoration: none;
+  font-size: 14px;
+  color: #444;
+  padding: 5px 12px;
+}
+
+.tab-record:hover {
+  color: #1a73e8;
+}
+
+.board-header {
+    margin-bottom: 16px;
+}
+
+.board-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+
+/* ------------------------------------------------------검색 바 */
+.board-top {
+  display: flex;
+  justify-content: flex-end; /* ✅ 오른쪽 정렬 */
+  margin-bottom: 16px;
+  padding-right: 4px;
+}
+
+/* 검색 폼 자체 */
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff;
+  padding: 8px 12px;
+  border-radius: 24px; /* 깔끔 둥근 형태 */
+  border: 1px solid #eee;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* select 스타일 */
+.search-select {
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.search-select:focus {
+  outline: none;
+  border-color: #1a73e8;
+}
+
+/* input 스타일 */
+.search-input {
+  min-width: 170px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #1a73e8;
+}
+
+/* 검색 버튼 */
+.btn-search {
+  background-color: #1a73e8;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-search:hover {
+  opacity: 0.9;
+}
+
+/* --------------------------------------------------------------게시글 목록 */
+.post-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.post-table th,
+.post-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.post-table th {
+    background-color: #f1f3f4;
+    font-weight: 600;
+}
+
+.post-table td.title {
+    text-align: left;
+}
+
+.post-table td.title a {
+    color: #222;
+    text-decoration: none;
+}
+
+.post-table td.title a:hover {
+    text-decoration: underline;
+}
+
+.post-table tbody tr:hover {
+    background-color: #f8fbff;
+}
+
+.post-table .no-post {
+    text-align: center;
+    padding: 20px 0;
+    color: #777;
+}
+
+/* ------------------------------------------------목록 아래 레이아웃: 왼쪽 페이징, 오른쪽 글쓰기 버튼 */
+.board-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+/* 페이징 영역 */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+/* 페이지 번호 공통 스타일 */
+.page-number,
+.page-nav {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #555;
+    border: 1px solid transparent;
+}
+
+/* 현재 페이지 */
+.page-number.current {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+    font-weight: 600;
+}
+
+/* 다른 페이지들 hover */
+.page-number:hover,
+.page-nav:hover {
+    border-color: #ccc;
+    background-color: #f5f5f5;
+}
+
+/* 글쓰기 버튼 (공통 버튼 스타일 활용) */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------ 지수 요약 / 차트 영역 -------------------- */
+
+/* 전체 래퍼: 지수 카드들을 가로로 배치 */
+.index-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* 2개면 2개, 작으면 자동 줄바꿈 */
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* 개별 지수 카드 */
+.index-item {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+
+    display: flex;
+    flex-direction: column;  /* 위 텍스트, 아래 차트 */
+    justify-content: space-between;
+    min-height: 140px;
+}
+
+/* 헤더(지수 이름 + 가격 + 등락률) */
+.idx-header {
+    margin-bottom: 8px;
+}
+
+.idx-name {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 2px;
+    font-size: 14px;
+}
+
+.idx-price {
+    margin-right: 6px;
+    font-size: 15px;
+}
+
+/* 등락률 색상 */
+.idx-change.up {
+    color: #d93025;   /* 빨강 */
+}
+.idx-change.down {
+    color: #1a73e8;   /* 파랑 */
+}
+.idx-change.flat {
+    color: #777;      /* 보합 */
+}
+
+/* 차트 영역 */
+.idx-chart {
+    margin-top: 4px;
+    height: 80px;        /* 차트 높이 */
+}
+
+.idx-chart canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* --------------------------------------------------------------------게시글 상세 --------- */
+
+.post-empty {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.post-view {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 20px;
+}
+
+.post-view-header {
+    margin-bottom: 12px;
+}
+
+.post-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.post-meta {
+    font-size: 13px;
+    color: #777;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.meta-item b {
+    font-weight: 600;
+    color: #444;
+}
+
+.meta-dot {
+    color: #ccc;
+}
+
+/* 본문 */
+.post-body {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 12px;
+}
+
+.post-content {
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* 하단 버튼 영역 */
+.post-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.post-actions form {
+    margin: 0;
+}
+
+/* 버튼 공통 (list 페이지와 동일하게 유지) */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.btn-primary {
+    background-color: #1a73e8;
+    color: #fff;
+    border-color: #1a73e8;
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: #555;
+    border-color: #ccc;
+}
+
+.btn-danger {
+    background-color: #e53935;
+    color: #fff;
+    border-color: #e53935;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* ----------------------------------------------------------------- 댓글 영역 ------------- */
+
+.comment-section {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);  /* ← 오타 수정 */
+    margin-bottom: 24px;                     /* 옵션: 여백 추가 */
+}
+
+.comment-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.comment-empty {
+    font-size: 14px;
+    color: #777;
+}
+
+.comment-list {
+    margin-bottom: 12px;
+}
+
+.comment-item {
+    border-bottom: 1px solid #f2f2f2;
+    padding: 8px 0;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.comment-author {
+    font-weight: 600;
+}
+
+.comment-date {
+    color: #999;
+    font-size: 12px;
+}
+
+.comment-body {
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+/* 댓글 작성 폼 */
+.comment-form textarea {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 70px;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+}
+
+.comment-login {
+    font-size: 14px;
+    color: #555;
+}
+
+.comment-login a {
+    color: #1a73e8;
+    text-decoration: none;
+}
+.comment-login a:hover {
+    text-decoration: underline;
+}
+
+/*---------------------------------------------------------------------- 글쓰기 / 수정 폼 ---------- */
+.post-form-card {
+	background-color: #fff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin: 10px auto 24px;
+    max-width: 700px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+}
+
+.form-input,
+.form-textarea {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-textarea {
+    min-height: 220px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+/* ------------------------------------------------------------- 매매 기록 캘린더-------------------------- */
+
+.calendar-container {
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    padding: 16px 20px;
+    margin-top: 12px;
+    margin-bottom: 24px;
+}
+
+/* 상단 (월 이동 + 월 합계) */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.calendar-month-summary {
+    font-size: 13px;
+    color: #555;
+}
+
+.calendar-error {
+    color: #d93025;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+/* 입력 폼 카드 */
+.calendar-form-card {
+    background-color: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.calendar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-form-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+
+.calendar-form-row label {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.input-small {
+    width: 80px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+
+.input-medium {
+    width: 140px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+
+.input-long {
+    flex: 1;
+    min-width: 240px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+}
+
+.calendar-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+/* 캘린더 표 */
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;      /* 날짜 셀 동일 폭 */
+    font-size: 12px;
+}
+
+.calendar-table th,
+.calendar-table td {
+    border: 1px solid #f0f0f0;
+    padding: 4px 4px;
+    vertical-align: top;
+}
+
+/* 요일 헤더 */
+.calendar-table thead th {
+    background-color: #f7f8fa;
+    text-align: center;
+    font-weight: 600;
+    color: #555;
+}
+
+/* 일요일/토요일 */
+.calendar-table th.sun {
+    color: #d93025;
+}
+.calendar-table th.sat {
+    color: #1a73e8;
+}
+
+/* 날짜 셀 */
+.calendar-cell {
+    height: 90px;
+    background-color: #fff;
+    position: relative;
+}
+
+.day {
+    cursor: pointer;
+}
+
+.day-number {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/* 거래 있음/없음 표시 */
+.calendar-cell.has-trade {
+    background-color: #f5f9ff;
+}
+
+.tradeItem {
+    font-size: 11px;
+    margin-top: 3px;
+    line-height: 1.3;
+}
+
+/* 범례 */
+.calendar-legend {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    margin-right: 3px;
+}
+
+.legend-has-trade {
+    background-color: #f5f9ff;
+}
+
+.legend-empty {
+    background-color: #fff;
+}
+
+/* 기존에 쓰던 텍스트 색/크기 클래스 이동 */
+.small {
+    font-size: 12px;
+    color: #555;
+}
+
+.blue {
+    color: #1a73e8;
+}
+
+.red {
+    color: #d93025;
+}
+
+/* 삭제 버튼 */
+.btnDel {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-left: 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+}
+.btnDel:hover {
+    background-color: #fce8e6;
+}
+
+.calendar-cell.day:hover {
+    background-color: #edf4ff;
+}
+
+/* =========================================================== 로그인 / 회원가입 ======================== */
+
+/* 로그인 전체 영역: 살짝 가운데로 */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+/* 카드 박스 */
+.auth-card {
+    width: 360px;
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    padding: 20px 22px 24px;
+}
+
+/* 타이틀 / 부제 */
+.auth-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.auth-subtitle {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 14px;
+}
+
+/* 에러 메시지 */
+.auth-error {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background-color: #fce8e6;
+    border: 1px solid #f7c1bd;
+    color: #c5221f;
+    font-size: 13px;
+}
+
+/* 폼 */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.auth-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* 입력칸 */
+.auth-input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+
+.auth-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 버튼 영역 */
+.auth-actions {
+    margin-top: 6px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* 카드 하단 링크 */
+.auth-footer {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+}
+
+.auth-footer a {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
