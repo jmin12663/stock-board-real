@@ -12,7 +12,7 @@
 </head>
 <body>
 <a href="<%= request.getContextPath() %>/member/login.jsp">로그인</a>
-<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>/a>
+<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>
 <hr>
 
 <h2>회원가입</h2>

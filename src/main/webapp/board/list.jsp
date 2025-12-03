@@ -61,7 +61,7 @@
 <jsp:include page="/common/chart.jsp" />
 
 <!--  검색 폼, list.do로 요청 -->
-<form method="get" action="<%= request.getContextPath() %>/board/list.do" style="margin-bottom:10px;">
+<form method="get" action="<%= request.getContextPath() %>/board/list.do" align="center" style="margin-top:10px;">
   <input type="hidden" name="categoryId" value="<%= categoryId %>">
   <input type="hidden" name="page" value="1">
 
@@ -70,13 +70,11 @@
     <option value="content" <%= "content".equals(field) ? "selected" : "" %>>내용</option>
   </select>
 
-  <input type="text" name="searchWord"
-         value="<%= (searchWord == null) ? "" : searchWord %>"
-         placeholder="검색어 입력" />
+  <input type="text" name="searchWord" value="<%= (searchWord == null) ? "" : searchWord %>"  placeholder="검색어 입력" />
   <button type="submit">검색하기</button>
 </form>
 
-<table border="1" cellspacing="0" cellpadding="5">
+<table border="1" width="90%" cellspacing="0" cellpadding="5" align="center">
     <tr>
         <th>번호</th>
         <th>제목</th>
@@ -113,7 +111,7 @@
 </table>
 
 
-<div>
+<div align="center" style="margin-top:10px;">
     <%-- 이전 --%>
     <% if (currentpage > 1) { %>
         <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage-1 %><%= q %>">이전</a>
@@ -139,11 +137,14 @@
         <a href="<%= request.getContextPath() %>/board/list.do?categoryId=<%= categoryId %>&page=<%= currentpage+1 %><%= q %>">다음</a>
     <% } %>
 </div>
-<br>
-
-<a href="<%= request.getContextPath() %>/board/writeForm.do?categoryId=<%= categoryId %>">
-    글쓰기
-</a>
-
+<table width="90%" align="center">
+    <tr>
+        <td align="right">
+            <button onclick="location.href='<%= request.getContextPath() %>/board/writeForm.do?categoryId=<%= categoryId %>'">
+                글쓰기 
+            </button>
+        </td>
+    </tr>
+</table>		
 </body>
 </html>
