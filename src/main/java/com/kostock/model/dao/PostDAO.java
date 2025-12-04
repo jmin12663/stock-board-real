@@ -79,18 +79,19 @@ public class PostDAO {
         List<PostDTO> list = new ArrayList<>();
 
         int start = (page - 1) * pageSize + 1; // 1-based
-        int end = page * pageSize;
+        int end   = page * pageSize;
 
         String sql =
             "SELECT * FROM ( " +
-            "   SELECT post_id, userid, category_id, stock_code, " +
-            "          title, created_at, view_count, " +
-            "          ROW_NUMBER() OVER (ORDER BY post_id DESC) AS list_no " +
+            "   SELECT " +
+            "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " + // 최신글이 list_no = 1
+            "          post_id, userid, category_id, stock_code, " +
+            "          title, created_at, view_count " +
             "   FROM POST " +
             "   WHERE category_id = ? " +
             ") " +
             "WHERE list_no BETWEEN ? AND ? " +
-            "ORDER BY list_no ASC";
+            "ORDER BY list_no ASC";  // 1,2,3,... 순서로 -> 화면에서 위가 최신글
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -109,8 +110,7 @@ public class PostDAO {
                     dto.setTitle(rs.getString("title"));
                     dto.setCreatedAt(rs.getDate("created_at"));
                     dto.setViewCount(rs.getInt("view_count"));
-                    dto.setListNo(rs.getInt("list_no")); // 화면용 No
-
+                    dto.setListNo(rs.getInt("list_no")); // 화면용 번호
                     list.add(dto);
                 }
             }
@@ -121,7 +121,7 @@ public class PostDAO {
 
         return list;
     }
-    
+
     //카테고리 별 글 개수
     public int getPostCountByCategory(int categoryId) {
         int count = 0;
@@ -250,56 +250,61 @@ public class PostDAO {
         return count;
     }
     
-    // 카테고리 별 검색 게시물 목록 조회
-    public List<PostDTO> selectPostListByCategorySearchPaging(int categoryId, String field, String searchWord,
+ // 카테고리 별 검색 게시물 목록 조회
+    public List<PostDTO> selectPostListByCategorySearchPaging(
+            int categoryId, String field, String searchWord,
             int page, int pageSize) {
-    	List<PostDTO> list = new ArrayList<>(); // 조회된 게시글 리스트
-    	int start = (page - 1) * pageSize + 1;
-    	int end = page * pageSize;
 
-    	String where;
-    	if ("content".equals(field)) {
-    		where = "DBMS_LOB.INSTR(content, ?) > 0";
-    	} else { // title
-    		where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
-    	}
+        List<PostDTO> list = new ArrayList<>();
+        int start = (page - 1) * pageSize + 1;
+        int end   = page * pageSize;
 
-    	String sql =
-    			"SELECT * FROM ( " +
-    					"   SELECT post_id, userid, category_id, stock_code, title, created_at, view_count, " +
-    					"          ROW_NUMBER() OVER (ORDER BY post_id DESC) AS list_no " +
-    					"   FROM POST " +
-    					"   WHERE category_id = ? AND " + where +
-    					") WHERE list_no BETWEEN ? AND ? " +
-    					"ORDER BY list_no ASC";
+        String where;
+        if ("content".equals(field)) {
+            where = "DBMS_LOB.INSTR(content, ?) > 0";
+        } else { // title (또는 기타)
+            where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
+        }
 
-    	try (Connection conn = DBUtil.getConnection();
-    			PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql =
+            "SELECT * FROM ( " +
+            "   SELECT " +
+            "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " +
+            "          post_id, userid, category_id, stock_code, title, created_at, view_count " +
+            "   FROM POST " +
+            "   WHERE category_id = ? AND " + where +
+            ") " +
+            "WHERE list_no BETWEEN ? AND ? " +
+            "ORDER BY list_no ASC";
 
-    		pstmt.setInt(1, categoryId);
-    		pstmt.setString(2, searchWord);
-    		pstmt.setInt(3, start);
-    		pstmt.setInt(4, end);
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    		try (ResultSet rs = pstmt.executeQuery()) {
-    			while (rs.next()) {
-    				PostDTO dto = new PostDTO();
-    				dto.setPostId(rs.getInt("post_id"));
-    				dto.setUserid(rs.getString("userid"));
-    				dto.setCategoryId(rs.getInt("category_id"));
-    				dto.setStockCode(rs.getString("stock_code"));
-    				dto.setTitle(rs.getString("title"));
-    				dto.setCreatedAt(rs.getDate("created_at"));
-    				dto.setViewCount(rs.getInt("view_count"));
-    				dto.setListNo(rs.getInt("list_no"));
-    				list.add(dto);
-    			}
-    		}
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
+            pstmt.setInt(1, categoryId);
+            pstmt.setString(2, searchWord);
+            pstmt.setInt(3, start);
+            pstmt.setInt(4, end);
 
-    	return list;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    PostDTO dto = new PostDTO();
+                    dto.setPostId(rs.getInt("post_id"));
+                    dto.setUserid(rs.getString("userid"));
+                    dto.setCategoryId(rs.getInt("category_id"));
+                    dto.setStockCode(rs.getString("stock_code"));
+                    dto.setTitle(rs.getString("title"));
+                    dto.setCreatedAt(rs.getDate("created_at"));
+                    dto.setViewCount(rs.getInt("view_count"));
+                    dto.setListNo(rs.getInt("list_no"));
+                    list.add(dto);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
+
     
 }

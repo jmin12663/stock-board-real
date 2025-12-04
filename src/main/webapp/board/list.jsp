@@ -64,12 +64,12 @@
 <!------------------------------------ 카테고리 -->
 <jsp:include page="/common/nav.jsp" />
 
+<!------------------------------------ 지수 요약 바 및 차트 -->
+<jsp:include page="/common/chart.jsp" />
+
 <div class="board-header">
 	<h2 class="board-title">게시글</h2>
 </div>
-
-<!------------------------------------ 지수 요약 바 및 차트 -->
-<jsp:include page="/common/chart.jsp" />
 
 <!------------------------------------  검색 폼, list.do로 요청 -->
 <div class="board-top">
