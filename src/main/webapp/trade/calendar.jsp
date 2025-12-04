@@ -123,8 +123,7 @@
         </div>
 
         <div class="calendar-form-row">
-            <label>종목코드</label>
-            <input type="text" name="stockCode" class="input-small">
+            
             <label>종목명</label>
             <input type="text" name="stockName" class="input-medium">
         </div>

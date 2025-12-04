@@ -17,7 +17,6 @@
 
 <!-- 지수 요약 바  -->
 
-
 <c:if test="${not empty indexList}">
     <div class="index-bar">
         <c:forEach var="idx" items="${indexList}">
@@ -49,9 +48,9 @@
     </div>
 </c:if>
 
-
-
 <!-- ===== 지수 요약 바 끝 ===== -->
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
