@@ -62,7 +62,7 @@
     	<a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
 	<% } else { %>
    	 <!-- 로그인 된 상태 -->
-    	<span><%= loginUser.getName() %>님 (역할: <%= loginUser.getRole() %>)</span>
+    	<span><%= loginUser.getName() %>님 (<%= loginUser.getRole() %>)</span>
     	<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 	<% } %>
 
