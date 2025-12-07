@@ -24,7 +24,6 @@ public class KoreaInvestApiClient {
     private long tokenExpiresAt = 0L;  // 만료 시간
 
     // 공통 유틸: HTTP 응답 읽기
-
     private String readAll(InputStream in) throws IOException {
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(in, StandardCharsets.UTF_8))) {
@@ -89,18 +88,19 @@ public class KoreaInvestApiClient {
     // 지수 일봉 조회 (코스피/코스닥 등)
     //  indexCode : "0001"(코스피), "1001"(코스닥) 
     public JsonObject getIndexDailyCandles(String indexCode) throws IOException {
-        String baseUrl = AppConfig.get("kis.baseUrl");
+        // api 값 지정
+    	String baseUrl = AppConfig.get("kis.baseUrl");
         String path    = AppConfig.get("kis.indexDailyPath");  // /uapi/.../inquire-daily-indexchartprice
         String trId    = AppConfig.get("kis.indexDailyTrId");  // FHKUP03500100
 
         // 최근 30일 범위 (원하면 숫자 조정 가능)
         LocalDate end   = LocalDate.now();
         LocalDate start = end.minusDays(30);
-
+        //api yyyyMMdd 바꿔야함
         String startDate = start.format(DateTimeFormatter.BASIC_ISO_DATE); // yyyyMMdd
         String endDate   = end.format(DateTimeFormatter.BASIC_ISO_DATE);
 
-        // 지수용: FID_COND_MRKT_DIV_CODE = U
+        // 지수용 데이터 조회: FID_COND_MRKT_DIV_CODE = U
         String query =
                 "FID_COND_MRKT_DIV_CODE=" + URLEncoder.encode("U", "UTF-8") +
                 "&FID_INPUT_ISCD="        + URLEncoder.encode(indexCode, "UTF-8") +
@@ -108,20 +108,20 @@ public class KoreaInvestApiClient {
                 "&FID_INPUT_DATE_2="      + URLEncoder.encode(endDate, "UTF-8") +
                 "&FID_PERIOD_DIV_CODE="   + URLEncoder.encode("D", "UTF-8") +
                 "&FID_ORG_ADJ_PRC="       + URLEncoder.encode("0", "UTF-8");
-
+        //======api 요철 URL 생성을 서버로 연결
         URL url = new URL(baseUrl + path + "?" + query);
         System.out.println("[DEBUG] index daily URL = " + url);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-
+        //헤더생성
         conn.setRequestProperty("content-type", "application/json; charset=UTF-8");
         conn.setRequestProperty("authorization", "Bearer " + getAccessToken());
         conn.setRequestProperty("appkey", AppConfig.get("kis.appKey"));
         conn.setRequestProperty("appsecret", AppConfig.get("kis.appSecret"));
         conn.setRequestProperty("tr_id", trId);
         conn.setRequestProperty("custtype", "P"); // 개인
-
+        // 응답 수신및 오류 처리
         int codeHttp = conn.getResponseCode();
         String resBody = readAll(codeHttp >= 200 && codeHttp < 300 ?
                 conn.getInputStream() : conn.getErrorStream());
@@ -132,7 +132,7 @@ public class KoreaInvestApiClient {
         if (codeHttp < 200 || codeHttp >= 300) {
             throw new IOException("지수 일봉 조회 실패: HTTP " + codeHttp + " / " + resBody);
         }
-
+        // 성공하면 json 문자열로 변환하고 반환함
         return gson.fromJson(resBody, JsonObject.class);
     }
     

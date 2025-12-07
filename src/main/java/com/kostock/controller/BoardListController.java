@@ -39,15 +39,13 @@ public class BoardListController extends HttpServlet {
         if (categoryIdParam != null && !categoryIdParam.isBlank()) {
             categoryId = Integer.parseInt(categoryIdParam);
         }
-
         // page
         int page = 1;
         String pageParam = request.getParameter("page");
         if (pageParam != null) {
             page = Integer.parseInt(pageParam);
         }
-        if (page < 1) page = 1;
-        
+        if (page < 1) page = 1;        
         //searchWord (검색어)
         String searchWord = request.getParameter("searchWord");
         if (searchWord != null) {
@@ -60,11 +58,10 @@ public class BoardListController extends HttpServlet {
             field = "title";
         }
         
-        
+        PostDAO dao = new PostDAO();
+
         // 보이는 게시글 갯수
         int pageSize = 10;
-
-        PostDAO dao = new PostDAO();
 
         // 총 글 개수 / 총 페이지 수
         int totalCount;
@@ -74,7 +71,7 @@ public class BoardListController extends HttpServlet {
         //  검색어 있으면 검색용 메서드, 없으면 기존 메서드
         if (searchWord != null) {
             totalCount = dao.getPostCountByCategorySearch(categoryId, field, searchWord);
-            totalPages = (int) Math.ceil((double) totalCount / pageSize);
+            totalPages = (int) Math.ceil((double) totalCount / pageSize); // 올림
             if (totalPages < 1) totalPages = 1;
             if (page > totalPages) page = totalPages;
 
@@ -99,11 +96,9 @@ public class BoardListController extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
             indexList = Collections.emptyList(); // 오류 나도 NPE 안 나게 빈 리스트
-        }
-        
-     // 각 지수별 미니 차트용 일봉 데이터 Map
+        }   
+        // 각 지수별 미니 차트용 일봉 데이터 Map
         Map<String, List<StockPriceDTO>> indexPriceMap = new HashMap<>();
-
         try {
             for (IndexSummaryDTO idx : indexList) {
                 String code = idx.getStockCode();
@@ -116,9 +111,9 @@ public class BoardListController extends HttpServlet {
         }
 
 
-        // 5) JSP로 전달
+        // JSP로 전달
         request.setAttribute("categoryId", categoryId);
-        request.setAttribute("postList", list);
+        request.setAttribute("postList", list); // 목록을 jsp로 넘겨주기
 
         request.setAttribute("page", page);
         request.setAttribute("pageSize", pageSize);

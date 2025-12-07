@@ -2,7 +2,6 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<%@ taglib prefix="fn"  uri="jakarta.tags.functions" %>
 <link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
 
@@ -15,8 +14,7 @@
 <body>
 <div class="wrapper">
 
-<!-- 지수 요약 바  -->
-
+<!-- 지수 요약 바, getindexsummaries 값을 가져옴 -->
 <c:if test="${not empty indexList}">
     <div class="index-bar">
         <c:forEach var="idx" items="${indexList}">
@@ -24,21 +22,20 @@
                 
                 <!-- 위쪽: 텍스트(지수 이름 + 수치) -->
                 <div class="idx-header">
-                    <span class="idx-name">${idx.stockName}</span>
+                    <span class="idx-name">${idx.stockName}</span> <!-- 이름 -->
 
-                    <span class="idx-price">
+                    <span class="idx-price"> <!-- 종가 -->
                         <fmt:formatNumber value="${idx.closePrice}" pattern="#,##0.00"/>
                     </span>
-
-                    <c:set var="isUp" value="${idx.diff > 0}" />
+					<!-- diff 는 오늘 - 전일 가격 -->
+                    <c:set var="isUp" value="${idx.diff > 0}"/>
                     <span class="idx-change ${isUp ? 'up' : (idx.diff < 0 ? 'down' : 'flat')}">
-                        <fmt:formatNumber value="${idx.diff}" pattern="#,##0.00"/>
-                        (
+                        <fmt:formatNumber value="${idx.diff}" pattern="#,##0.00"/> <!-- 가격 -->
+                        (	<!-- 변동률 -->
                         <fmt:formatNumber value="${idx.diffRate}" pattern="#,##0.00"/>%
                         )
                     </span>
                 </div>
-
                 <!-- 아래쪽: 차트 -->
                 <div class="idx-chart">
                     <canvas id="spark_${idx.stockCode}"></canvas>
@@ -47,14 +44,12 @@
         </c:forEach>
     </div>
 </c:if>
-
 <!-- ===== 지수 요약 바 끝 ===== -->
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() { //실행부분
 
     // indexList 돌면서 각 지수별로 차트 생성 
     <c:forEach var="idx" items="${indexList}">
@@ -112,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     maintainAspectRatio: false,   // ★ CSS 높이대로
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: true } // 마우스 올리면 값 보기
+                        tooltip: { enabled: true } 
                     },
                     
                     scales: {
@@ -120,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             display: true,
                             ticks: {
                             	// 날짜 표시 갯수
-                                maxTicksLimit: 7,
+                                maxTicksLimit: 5,
                                 autoSkip: true,
                                 font: { size: 9 }
                             },

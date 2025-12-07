@@ -32,7 +32,7 @@
     	<a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
 	<% } else { %>
    	 <!-- 로그인 된 상태 -->
-    	<span><%= loginUser.getName() %>님 (역할: <%= loginUser.getRole() %>)</span>
+    	<span><%= loginUser.getName() %>님 (<%= loginUser.getRole() %>)</span>
     	<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 	<% } %>
 
@@ -47,43 +47,32 @@
     <div class="post-form-card">
         <form action="<%= request.getContextPath() %>/board/write.do" method="post">
             <input type="hidden" name="categoryId" value="<%= categoryId %>">
-
-            <!-- 제목 -->
             <div class="form-row">
-                <label for="title" class="form-label">제목</label>
+                <label for="title" class="form-label">제목</label> <!-- 제목 -->
                 <input type="text"
                        id="title"
                        name="title"
                        class="form-input"
                        placeholder="제목을 입력하세요">
-            </div>
-
-            <!-- 내용 -->
-            <div class="form-row">
+            </div>           
+            <div class="form-row"><!-- 내용 -->
                 <label for="content" class="form-label">내용</label>
                 <textarea id="content"
                           name="content"
                           class="form-textarea"
                           placeholder="내용을 입력하세요"></textarea>
-            </div>
-
-            <!-- 버튼 -->
-            <div class="form-actions">
-                <button type="button"
-                        class="btn btn-secondary btn-sm"
-                        onclick="location.href='<%=request.getContextPath()%>/board/list.do?categoryId=<%=categoryId%>'">
-                    목록으로
-                </button>
-
+            </div>          
+            <div class="form-actions"><!-- 버튼 -->
+                <a href="<%= request.getContextPath() %>/board/list.do?categoryId=1"
+           class="btn btn-secondary btn-sm">
+            목록으로 </a>
                 <button type="submit" class="btn btn-primary btn-sm">
                     작성하기
-                </button>
+                </button>                
             </div>
-                </form>
+        </form>
     </div>  <!-- .post-form-card 끝 -->
-
 </div>      <!-- .wrapper 끝 -->
-
 </body>
 </html>
 

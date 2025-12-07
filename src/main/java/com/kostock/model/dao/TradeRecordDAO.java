@@ -15,45 +15,10 @@ import com.kostock.model.dto.TradeRecordDTO;
 import com.kostock.util.DBUtil;
 
 public class TradeRecordDAO {
-
-    // ─────────────────────
-    //  단일 날짜 조회
-    // ─────────────────────
-    public List<TradeRecordDTO> selectByUserAndDate(String userid, Date tradeDate) {
-        List<TradeRecordDTO> list = new ArrayList<>();
-
-        String sql =
-            "SELECT record_id, userid, stock_code, stock_name, trade_date, trade_type, " +
-            "       quantity, price, memo, created_at " +
-            "FROM trade_record " +
-            "WHERE userid = ? " +
-            "  AND trade_date >= ? AND trade_date < (? + 1) " +
-            "ORDER BY record_id DESC";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, userid);
-            pstmt.setDate(2, tradeDate);
-            pstmt.setDate(3, tradeDate);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRowToTradeRecord(rs));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    // ─────────────────────
     //  INSERT / DELETE
-    // ─────────────────────
     public int insert(TradeRecordDTO dto) {
         int result = 0;
-
+        // 컨트롤러에서 온 dto의 값을 동적으로 DB에 저장함
         String sql =
             "INSERT INTO trade_record " +
             "(userid, stock_code, stock_name, trade_date, trade_type, quantity, price, memo) " +
@@ -61,7 +26,6 @@ public class TradeRecordDAO {
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setString(1, dto.getUserid());
             pstmt.setString(2, dto.getStockCode()); // null 가능
             pstmt.setString(3, dto.getStockName());
@@ -75,7 +39,6 @@ public class TradeRecordDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return result;
     }
 
@@ -86,29 +49,21 @@ public class TradeRecordDAO {
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setInt(1, recordId);
             pstmt.setString(2, userid);
-
             result = pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return result;
     }
-
-    // ─────────────────────
-    //  월 단위 합계 / 통계
-    // ─────────────────────
 
     // 월 합계 (BUY or SELL) : 금액 = SUM(quantity * price)
     public BigDecimal sumAmountByMonth(String userid, int year, int month, String tradeType) {
         BigDecimal sum = BigDecimal.ZERO;
 
         MonthRange range = getMonthRange(year, month);
-
-        String sql =
+        String sql = // 해당 월의 모든 거래의 값의 합산
             "SELECT SUM(quantity * price) AS amt " +
             "FROM trade_record " +
             "WHERE userid=? AND trade_type=? " +
@@ -131,90 +86,19 @@ public class TradeRecordDAO {
         return sum;
     }
 
-    // 일별 금액 합계 (day -> amt) (BUY or SELL)
-    public Map<Integer, BigDecimal> sumDailyAmountByMonth(
-            String userid, int year, int month, String tradeType) {
 
-        Map<Integer, BigDecimal> map = new HashMap<>();
-
-        MonthRange range = getMonthRange(year, month);
-
-        String sql =
-            "SELECT EXTRACT(DAY FROM trade_date) AS d, SUM(quantity * price) AS amt " +
-            "FROM trade_record " +
-            "WHERE userid=? AND trade_type=? " +
-            "  AND trade_date >= ? AND trade_date < ? " +
-            "GROUP BY EXTRACT(DAY FROM trade_date)";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, userid);
-            pstmt.setString(2, tradeType);
-            pstmt.setDate(3, Date.valueOf(range.start));
-            pstmt.setDate(4, Date.valueOf(range.endExclusive));
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    int day = rs.getInt("d");
-                    BigDecimal amt = nvl(rs.getBigDecimal("amt"));
-                    map.put(day, amt);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return map;
-    }
-
-    // 일별 수량 합계 (day -> qty) (BUY or SELL)
-    public Map<Integer, Integer> sumDailyQtyByMonth(
-            String userid, int year, int month, String tradeType) {
-
-        Map<Integer, Integer> map = new HashMap<>();
-
-        MonthRange range = getMonthRange(year, month);
-
-        String sql =
-            "SELECT EXTRACT(DAY FROM trade_date) AS d, SUM(quantity) AS qty " +
-            "FROM trade_record " +
-            "WHERE userid=? AND trade_type=? " +
-            "  AND trade_date >= ? AND trade_date < ? " +
-            "GROUP BY EXTRACT(DAY FROM trade_date)";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, userid);
-            pstmt.setString(2, tradeType);
-            pstmt.setDate(3, Date.valueOf(range.start));
-            pstmt.setDate(4, Date.valueOf(range.endExclusive));
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    map.put(rs.getInt("d"), rs.getInt("qty"));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return map;
-    }
-
-    // ─────────────────────
     //  월 거래 전체 리스트 (달력용)
-    // ─────────────────────
     public List<TradeRecordDTO> selectByMonth(String userid, int year, int month) {
         List<TradeRecordDTO> list = new ArrayList<>();
-
+        //날짜 범위 계산
         MonthRange range = getMonthRange(year, month);
-
-        String sql =
+        // trade_record의 사용자별 한 달 기준 거래 날짜 순서를 정렬함
+        String sql = //trade_record의 모든 필드
             "SELECT record_id, userid, stock_code, stock_name, trade_date, trade_type, " +
             "       quantity, price, memo, created_at " +
-            "FROM trade_record " +
+            "FROM trade_record " +	// 특정 사용자와 해당 월 날짜만 필터
             "WHERE userid=? AND trade_date >= ? AND trade_date < ? " +
-            "ORDER BY trade_date ASC, record_id DESC";
+            "ORDER BY trade_date ASC, record_id DESC"; // 날짜를 오름차순, 최근거래 내림차순
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -234,10 +118,7 @@ public class TradeRecordDAO {
         return list;
     }
 
-    // ─────────────────────
     //  private 유틸 메서드
-    // ─────────────────────
-
     // ResultSet 한 행 → TradeRecordDTO
     private TradeRecordDTO mapRowToTradeRecord(ResultSet rs) throws java.sql.SQLException {
         TradeRecordDTO dto = new TradeRecordDTO();

@@ -24,6 +24,7 @@ public class LoginController extends HttpServlet {
         String userid = request.getParameter("userid");
         String pw = request.getParameter("password");
 
+        // 입력값과 일치하는 유저가 있으면 DTO 리턴
         UserDAO dao = new UserDAO();
         UserDTO loginUser = dao.login(userid, pw);
 

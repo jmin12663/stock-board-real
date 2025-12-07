@@ -21,7 +21,7 @@ public class BoardDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. 파라미터 꺼내기
+        // 파라미터 꺼내기
         String postIdParam = request.getParameter("postId");
 
         if (postIdParam == null) {
@@ -32,7 +32,7 @@ public class BoardDetailController extends HttpServlet {
 
         int postId = Integer.parseInt(postIdParam);
 
-        // 2. DAO 호출해서 글 가져오기 + 조회수 증가
+        // DAO 호출해서 글 가져오기 + 조회수 증가
         PostDAO dao = new PostDAO();
 
         // 조회수 +1
@@ -50,12 +50,12 @@ public class BoardDetailController extends HttpServlet {
         CommentDAO cdao = new CommentDAO();
         List<CommentDTO> comments = cdao.selectCommentsByPostId(postId);
 
-     // 3. JSP에서 쓸 데이터 저장
+     // JSP에서 쓸 데이터 저장
         request.setAttribute("post", post);
         request.setAttribute("comments", comments);
         request.setAttribute("postId", postId);
 
-     // 4. 화면으로 포워드
+     // 화면으로 포워드
         request.getRequestDispatcher("/board/detail.jsp")
                .forward(request, response);
     }

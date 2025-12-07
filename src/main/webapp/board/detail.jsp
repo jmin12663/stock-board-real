@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
-
 <%@ page import="com.kostock.model.dto.PostDTO" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.kostock.model.dto.CommentDTO" %>
@@ -9,7 +8,9 @@
 <%
     PostDTO post = (PostDTO) request.getAttribute("post");
 	UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
+	List<CommentDTO> comments = (List<CommentDTO>) request.getAttribute("comments");
 %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,7 +32,7 @@
     	<a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
 	<% } else { %>
    	 <!-- 로그인 된 상태 -->
-    	<span><%= loginUser.getName() %>님 (역할: <%= loginUser.getRole() %>)</span>
+    	<span><%= loginUser.getName() %>님 (<%= loginUser.getRole() %>)</span>
     	<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 	<% } %>
 
@@ -55,7 +56,7 @@
 
 <div class="post-view">
 
-    <!-- 제목 + 메타 정보 -->
+    <!-- 제목 + 정보 -->
     <div class="post-view-header">
         <h1 class="post-title"><%= post.getTitle() %></h1>
 
@@ -101,10 +102,6 @@
     </div>
 
 </div> <!-- /.post-view -->
-
-<%
-        List<CommentDTO> comments = (List<CommentDTO>) request.getAttribute("comments");
-%>
 
 <!-- 댓글 영역 -->
 <div class="comment-section">

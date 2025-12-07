@@ -8,12 +8,12 @@ import com.kostock.model.dto.UserDTO;
 import com.kostock.util.DBUtil;
 
 public class UserDAO {
-
 	    // 회원가입
 	    public int insertUser(UserDTO dto) {
 	        int result = 0;
 
-	        String sql = "INSERT INTO Users (userid, password, name, role, join_date) VALUES (?, ?, ?, ?, SYSDATE)";
+	        String sql = "INSERT INTO Users (userid, password, name, role, join_date) "
+	        		+ "VALUES (?, ?, ?, ?, SYSDATE)";
 
 	        try (Connection conn = DBUtil.getConnection();
 	             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -23,7 +23,7 @@ public class UserDAO {
 	            pstmt.setString(3, dto.getName());
 	            pstmt.setString(4, dto.getRole());
 
-	            result = pstmt.executeUpdate();
+	            result = pstmt.executeUpdate(); // 데이터 저장
 
 	        } catch (Exception e) {
 	            e.printStackTrace();

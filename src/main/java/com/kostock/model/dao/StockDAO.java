@@ -17,20 +17,22 @@ public class StockDAO {
     // 상단 지수 요약 조회 코드
     public List<IndexSummaryDTO> getIndexSummaries() throws SQLException {
         List<IndexSummaryDTO> list = new ArrayList<>();
-
         String sql =
             "SELECT stock_code, stock_name, close_price, prev_close, " +
-            "       close_price - prev_close AS diff, " +
-            "       ROUND((close_price - prev_close)/prev_close*100, 2) AS diff_rate " +
+            "       close_price - prev_close AS diff, " + // 직전일과 종가 차이
+            		// 변동률 계산
+            "       ROUND((close_price - prev_close)/prev_close*100, 2) AS diff_rate " + 
             "FROM ( " +
             "  SELECT s.stock_code, s.stock_name, " +
             "         p.price_date, p.close_price, " +
+            		  // ========각 종목을 날짜 순서로 종가를 가져온다
             "         LAG(p.close_price) OVER (PARTITION BY s.stock_code ORDER BY p.price_date) AS prev_close, " +
+            		  // ========각 종목을 날짜 내림차순으로 가져온뒤 번호를 최신날짜부터 1부터 매긴다
             "         ROW_NUMBER() OVER (PARTITION BY s.stock_code ORDER BY p.price_date DESC) AS rn " +
-            "  FROM STOCK s " +
+            "  FROM STOCK s " + // =======stock + stock-price-d 합치기
             "  JOIN STOCK_PRICE_D p ON s.stock_code = p.stock_code " +
-            "  WHERE s.stock_code IN ('KOSPI', 'KOSDAQ', 'USD_KRW') " +
-            ") WHERE rn = 1";
+            "  WHERE s.stock_code IN ('KOSPI', 'KOSDAQ') " +
+            ") WHERE rn = 1"; // 가장 최신 날짜 데이터 활용
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -59,6 +61,7 @@ public class StockDAO {
             "SELECT price_date, close_price " +
             "FROM STOCK_PRICE_D " +
             "WHERE stock_code = ? " +
+            // 오늘 자정 기준으로 주식의 일별 주가를 가져옴
             "  AND price_date >= TRUNC(SYSDATE) - ? " +
             "ORDER BY price_date";
 
@@ -80,97 +83,43 @@ public class StockDAO {
         return list;
     }
     
-    public String getStockName(String code) throws SQLException {
-        String sql = "SELECT stock_name FROM STOCK WHERE stock_code = ?";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, code);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("stock_name");
-                }
-            }
-        }
-        return null;
-    }
     // 지수 일봉 저장 메서드
     public void upsertDailyClosePrices(String stockCode, List<StockPriceDTO> list) throws SQLException {
-        String sql = """
-            MERGE INTO STOCK_PRICE_D d
-            USING (
-                SELECT ? AS STOCK_CODE,
-                       ? AS PRICE_DATE
-                FROM dual
-            ) s
-            ON (d.STOCK_CODE = s.STOCK_CODE AND d.PRICE_DATE = s.PRICE_DATE)
-            WHEN MATCHED THEN
-                UPDATE SET
-                    d.CLOSE_PRICE = ?
-            WHEN NOT MATCHED THEN
-                INSERT (STOCK_CODE, PRICE_DATE, CLOSE_PRICE)
-                VALUES (?, ?, ?)
+        String updateSql = """
+            UPDATE STOCK_PRICE_D
+               SET CLOSE_PRICE = ?
+             WHERE STOCK_CODE = ? AND PRICE_DATE = ?
+            """;
+        String insertSql = """
+            INSERT INTO STOCK_PRICE_D (STOCK_CODE, PRICE_DATE, CLOSE_PRICE)
+            VALUES (?, ?, ?)
             """;
 
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement updatePstmt = conn.prepareStatement(updateSql);
+             PreparedStatement insertPstmt = conn.prepareStatement(insertSql)) {
 
             for (StockPriceDTO dto : list) {
                 java.sql.Date date = dto.getPriceDate();
+                // UPDATE 먼저 
+                updatePstmt.setDouble(1, dto.getClosePrice());
+                updatePstmt.setString(2, stockCode);
+                updatePstmt.setDate(3, date);
 
-                // USING 절
-                pstmt.setString(1, stockCode);
-                pstmt.setDate(2, date);
+                int updated = updatePstmt.executeUpdate();
 
-                // UPDATE 절
-                pstmt.setDouble(3, dto.getClosePrice());
-
-                // INSERT 절
-                pstmt.setString(4, stockCode);
-                pstmt.setDate(5, date);
-                pstmt.setDouble(6, dto.getClosePrice());
-
-                pstmt.addBatch();
-            }
-
-            pstmt.executeBatch();
-        }
-    }
-    
-    // 차트용 조회
-    public List<StockPriceDTO> selectRecentDailyPrices(String stockCode, int days) throws SQLException {
-        String sql = """
-            SELECT PRICE_DATE, CLOSE_PRICE
-            FROM STOCK_PRICE_D
-            WHERE STOCK_CODE = ?
-              AND PRICE_DATE >= TRUNC(SYSDATE) - ?
-            ORDER BY PRICE_DATE
-            """;
-
-        List<StockPriceDTO> list = new ArrayList<>();
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, stockCode);
-            pstmt.setInt(2, days);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    StockPriceDTO dto = new StockPriceDTO();
-                    dto.setPriceDate(rs.getDate("PRICE_DATE"));
-                    dto.setClosePrice(rs.getDouble("CLOSE_PRICE"));
-                    list.add(dto);
+                // 업데이트된 행이 없으면 INSERT
+                if (updated == 0) {
+                    insertPstmt.setString(1, stockCode);
+                    insertPstmt.setDate(2, date);
+                    insertPstmt.setDouble(3, dto.getClosePrice());
+                    insertPstmt.executeUpdate();
                 }
             }
         }
-
-        return list;
     }
         
-    // StockDAO 안에 추가
+    // 주가 데이터에서 날짜가 가장 최근인 날짜를 얻음
     public java.sql.Date getLatestPriceDate(String stockCode) throws SQLException {
         String sql = "SELECT MAX(PRICE_DATE) AS LAST_DATE " +
                      "FROM STOCK_PRICE_D " +
@@ -189,8 +138,4 @@ public class StockDAO {
         }
         return null;
     }
-
-
-
-
 }

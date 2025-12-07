@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
-
 <%@ page import="java.math.BigDecimal" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.List" %>
@@ -11,7 +10,7 @@
 <%
 	UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
 	
-    // ───── Controller 에서 넘어온 값들 ─────
+    // Controller 에서 넘어온 값들 
     int year         = (Integer) request.getAttribute("year");
     int month        = (Integer) request.getAttribute("month");
     int daysInMonth  = (Integer) request.getAttribute("daysInMonth");
@@ -76,7 +75,6 @@
 <h2 class="board-title">매매 기록</h2>
 
 <div class="calendar-container">
-
     <!-- ───── 상단: 월 이동 + 월 합계 ───── -->
     <div class="calendar-header">
         <form method="get"
@@ -100,7 +98,7 @@
             </a>
         </form>
 
-        <div class="calendar-month-summary">
+        <div class="calendar-month-summary"> <!-- sumAmountByMonth 결과 -->
             월 합계:
             <span class="blue">매수 <%=monthBuy%></span> /
             <span class="red">매도 <%=monthSell%></span>
@@ -121,30 +119,22 @@
             <label>날짜</label>
             <input type="date" id="tradeDate" name="tradeDate" value="<%=yyyyMM%>-01">
         </div>
-
-        <div class="calendar-form-row">
-            
+        <div class="calendar-form-row">            
             <label>종목명</label>
             <input type="text" name="stockName" class="input-medium">
         </div>
-
         <div class="calendar-form-row">
             <label>유형</label>
             <select name="tradeType" class="input-small">
               <option value="BUY">BUY</option>
               <option value="SELL">SELL</option>
             </select>
-
+            
             <label>수량</label>
             <input type="text" name="quantity" class="input-small">
 
             <label>단가</label>
             <input type="text" name="price" class="input-small">
-        </div>
-
-        <div class="calendar-form-row">
-            <label>메모</label>
-            <input type="text" name="memo" class="input-long">
         </div>
 
         <div class="calendar-form-actions">
@@ -157,7 +147,7 @@
       </div>
     </div>
 
-    <!-- ───── 달력 표 ───── -->
+    <!-- =============== 달력 표 ============ -->
     <table class="calendar-table">
       <thead>
         <tr>
@@ -174,11 +164,11 @@
 <%
     int day = 1;
     int cell = 1;
-
+	// 달력 테이블 폼
     for (int row = 0; row < 6; row++) {
 %>
         <tr>
-<%
+<%			//========7열 6행 구조로 1일부터 채워넣음, 컨트롤러에서 나온 시작요일과 몇일까지 사용
       for (int col = 0; col < 7; col++, cell++) {
           if (cell < firstDow || day > daysInMonth) {
 %>
@@ -186,24 +176,24 @@
 <%
           } else {
               String dateStr = String.format("%04d-%02d-%02d", year, month, day);
-              List<TradeRecordDTO> dayTrades =
+              List<TradeRecordDTO> dayTrades =	//거래기록을 dayTrades로 가져옴 
                   (dayTradesMap != null) ? dayTradesMap.get(day) : null;
-
+			// 거래가 있는지 참거짓 조건
               boolean hasTrade = (dayTrades != null && !dayTrades.isEmpty());
 %>
           <td class="calendar-cell day <%= hasTrade ? "has-trade" : "" %>"
               onclick="pickDate('<%=dateStr%>')">
             <div class="day-number"><%=day%></div>
 
-<%
-            if (hasTrade) {
+<%			// 거래가 있으면 입력된 종목명,유형,수량,단가를 출력함
+            if (hasTrade) { // 유형 buy,sell 에 맞는 label과 색을 설정함
                 for (TradeRecordDTO tr : dayTrades) {
                     String ttype = tr.getTradeType();
                     String label = "BUY".equals(ttype) ? "[매수]" : "[매도]";
                     String colorClass = "BUY".equals(ttype) ? "blue" : "red";
-%>
+%>			<!-- 날짜 안에 개별 거래 출력 및 삭제 버튼 -->
             <div class="tradeItem <%=colorClass%>">
-              <%= label %>
+              <%= label %> <!-- 종목명, 수량, 단가 출력 -->
               <%= (tr.getStockName() == null ? "" : tr.getStockName()) %>
               (<%= tr.getQuantity() %>주 × <%= tr.getPrice() %>)
 

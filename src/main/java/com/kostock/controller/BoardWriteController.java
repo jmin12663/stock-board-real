@@ -43,6 +43,7 @@ public class BoardWriteController extends HttpServlet {
         PostDTO dto = new PostDTO(userid, categoryId, stockCode, title, content);
         PostDAO dao = new PostDAO();
 
+        //postDao 메서드
         int result = dao.insertPost(dto);
 
         if (result > 0) {

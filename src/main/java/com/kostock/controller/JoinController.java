@@ -33,8 +33,7 @@ public class JoinController extends HttpServlet {
         String pw2      = request.getParameter("password2");  // join.jsp 에서 추가한 필드
         String name     = request.getParameter("name");
         String role     = "USER";
-
-        // 1) 기본 입력값 검증 (간단 버전)
+        //  기본 입력값 검증 
         if (userid == null || userid.isBlank()
                 || pw == null || pw.isBlank()
                 || name == null || name.isBlank()) {
@@ -44,8 +43,7 @@ public class JoinController extends HttpServlet {
                    .forward(request, response);
             return;
         }
-
-        // 2) 비밀번호 확인 체크
+        //  비밀번호 확인 체크
         if (pw2 == null || !pw.equals(pw2)) {
             request.setAttribute("error", "비밀번호가 서로 일치하지 않습니다.");
             request.getRequestDispatcher("/member/join.jsp")
@@ -57,7 +55,6 @@ public class JoinController extends HttpServlet {
         UserDAO dao = new UserDAO();
 
         int result = dao.insertUser(dto);
-
         if (result > 0) {
             // 회원가입 성공 → 로그인 페이지로 이동
             response.sendRedirect(request.getContextPath() + "/member/login.jsp");

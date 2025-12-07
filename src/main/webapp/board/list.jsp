@@ -53,7 +53,7 @@
 	    	<a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
 		<% } else { %>
 	   	 <!-- 로그인 된 상태 -->
-	    	<span><%= loginUser.getName() %>님 (역할: <%= loginUser.getRole() %>)</span>
+	    	<span><%= loginUser.getName() %>님 (<%= loginUser.getRole() %>)</span>
 	    	<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 		<% } %>
 	
@@ -63,10 +63,8 @@
 
 <!------------------------------------ 카테고리 -->
 <jsp:include page="/common/nav.jsp" />
-
 <!------------------------------------ 지수 요약 바 및 차트 -->
 <jsp:include page="/common/chart.jsp" />
-
 <div class="board-header">
 	<h2 class="board-title">게시글</h2>
 </div>
@@ -102,7 +100,7 @@
 	        <th>제목</th>
 	        <th>작성자</th>
 	        <th>작성일</th>
-	        <th>조회수</th>
+	        <th>조회수</th>  
 	    </tr>
     </thead>
 	<tbody>

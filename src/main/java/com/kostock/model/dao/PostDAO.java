@@ -29,11 +29,9 @@ public class PostDAO {
             pstmt.setString(5, dto.getContent());
 
             result = pstmt.executeUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return result;
     }
 
@@ -72,7 +70,7 @@ public class PostDAO {
 
         return dto;
     }
-
+// ----------------------------------------------------검색어 없을때 리스트
     // 게시글 페이징
     public List<PostDTO> selectPostListByCategoryPaging(int categoryId, int page, int pageSize) {
 
@@ -84,11 +82,12 @@ public class PostDAO {
         String sql =
             "SELECT * FROM ( " +
             "   SELECT " +
-            "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " + // 최신글이 list_no = 1
-            "          post_id, userid, category_id, stock_code, " +
+            		   // 정렬해서 list.no 부여해줌  // 최신글이 list_no = 1
+            "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " + 
+            "          post_id, userid, category_id, stock_code, " + // 내림차순으로 정렬
             "          title, created_at, view_count " +
             "   FROM POST " +
-            "   WHERE category_id = ? " +
+            "   WHERE category_id = ? " + //게시판 종류
             ") " +
             "WHERE list_no BETWEEN ? AND ? " +
             "ORDER BY list_no ASC";  // 1,2,3,... 순서로 -> 화면에서 위가 최신글
@@ -114,7 +113,6 @@ public class PostDAO {
                     list.add(dto);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,6 +160,7 @@ public class PostDAO {
  // 작성자 본인 글인지 체크 (보안용)
     public boolean isOwner(int postId, String userid) {
         boolean ok = false;
+        //게시물과 유저 아이디가 같은지 검증 결과로 1이 나옴
         String sql = "SELECT COUNT(*) FROM POST WHERE post_id=? AND userid=?";
 
         try (Connection conn = DBUtil.getConnection();
@@ -220,18 +219,20 @@ public class PostDAO {
         }
         return result;
     }
-    
-    // 카테고리 별 검색 후 게시글 조회
+    // -------------------------------------------------검색어 있을때 목록
+    // 카테고리 별 검색 후 게시글 개수
     public int getPostCountByCategorySearch(int categoryId, String field, String searchWord) {
         int count = 0; //게시글 갯수
-
+        
+        // field 값이 title or content 경우
         String where;
         if ("content".equals(field)) {
             where = "DBMS_LOB.INSTR(content, ?) > 0";
         } else { // title
             where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
         }
-
+        
+        //카테고리 값에 맞는 게시글 검색
         String sql = "SELECT COUNT(*) FROM POST WHERE category_id = ? AND " + where;
 
         try (Connection conn = DBUtil.getConnection();
@@ -250,7 +251,7 @@ public class PostDAO {
         return count;
     }
     
- // 카테고리 별 검색 게시물 목록 조회
+    // 카테고리 별 검색 게시물 목록 조회
     public List<PostDTO> selectPostListByCategorySearchPaging(
             int categoryId, String field, String searchWord,
             int page, int pageSize) {
@@ -259,7 +260,7 @@ public class PostDAO {
         int start = (page - 1) * pageSize + 1;
         int end   = page * pageSize;
 
-        String where;
+        String where; // where에 field 값에 맞춰 조건 동적 생성
         if ("content".equals(field)) {
             where = "DBMS_LOB.INSTR(content, ?) > 0";
         } else { // title (또는 기타)
@@ -269,14 +270,15 @@ public class PostDAO {
         String sql =
             "SELECT * FROM ( " +
             "   SELECT " +
+            			// 정렬해서 list.no 부여해줌  // 최신글이 list_no = 1
             "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " +
             "          post_id, userid, category_id, stock_code, title, created_at, view_count " +
-            "   FROM POST " +
-            "   WHERE category_id = ? AND " + where +
+            "   FROM POST " + // 내림차순으로 정렬
+            "   WHERE category_id = ? AND " + where + //검색조건과 카테고리에 맞춤
             ") " +
             "WHERE list_no BETWEEN ? AND ? " +
             "ORDER BY list_no ASC";
-
+        	//다시 오름차순으로
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
