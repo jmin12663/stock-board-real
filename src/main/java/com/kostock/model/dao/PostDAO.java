@@ -35,7 +35,7 @@ public class PostDAO {
         return result;
     }
 
- // 게시글 상세 조회
+    // 게시글 상세 조회
     public PostDTO selectPostById(int postId) {
         PostDTO dto = null;
 
@@ -70,36 +70,34 @@ public class PostDAO {
 
         return dto;
     }
-// ----------------------------------------------------검색어 없을때 리스트
+
+    // ===== ROW_NUMBER() → MySQL 서브쿼리 방식 변경 =====
     // 게시글 페이징
     public List<PostDTO> selectPostListByCategoryPaging(int categoryId, int page, int pageSize) {
 
         List<PostDTO> list = new ArrayList<>();
 
-        int start = (page - 1) * pageSize + 1; // 1-based
-        int end   = page * pageSize;
+        int offset = (page - 1) * pageSize;
 
+        // MySQL은 LIMIT OFFSET 사용
         String sql =
-            "SELECT * FROM ( " +
-            "   SELECT " +
-            		   // 정렬해서 list.no 부여해줌  // 최신글이 list_no = 1
-            "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " + 
-            "          post_id, userid, category_id, stock_code, " + // 내림차순으로 정렬
-            "          title, created_at, view_count " +
-            "   FROM POST " +
-            "   WHERE category_id = ? " + //게시판 종류
-            ") " +
-            "WHERE list_no BETWEEN ? AND ? " +
-            "ORDER BY list_no ASC";  // 1,2,3,... 순서로 -> 화면에서 위가 최신글
+            "SELECT " +
+            "   post_id, userid, category_id, stock_code, " +
+            "   title, created_at, view_count " +
+            "FROM POST " +
+            "WHERE category_id = ? " +
+            "ORDER BY created_at DESC, post_id DESC " +
+            "LIMIT ? OFFSET ?";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, categoryId);
-            pstmt.setInt(2, start);
-            pstmt.setInt(3, end);
+            pstmt.setInt(2, pageSize);
+            pstmt.setInt(3, offset);
 
             try (ResultSet rs = pstmt.executeQuery()) {
+                int listNo = offset + 1; // 화면용 번호
                 while (rs.next()) {
                     PostDTO dto = new PostDTO();
                     dto.setPostId(rs.getInt("post_id"));
@@ -109,7 +107,7 @@ public class PostDAO {
                     dto.setTitle(rs.getString("title"));
                     dto.setCreatedAt(rs.getDate("created_at"));
                     dto.setViewCount(rs.getInt("view_count"));
-                    dto.setListNo(rs.getInt("list_no")); // 화면용 번호
+                    dto.setListNo(listNo++); // 화면용 번호
                     list.add(dto);
                 }
             }
@@ -120,7 +118,7 @@ public class PostDAO {
         return list;
     }
 
-    //카테고리 별 글 개수
+    // 카테고리 별 글 개수
     public int getPostCountByCategory(int categoryId) {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM POST WHERE category_id = ?";
@@ -157,10 +155,9 @@ public class PostDAO {
         }
     }
     
- // 작성자 본인 글인지 체크 (보안용)
+    // 작성자 본인 글인지 체크 (보안용)
     public boolean isOwner(int postId, String userid) {
         boolean ok = false;
-        //게시물과 유저 아이디가 같은지 검증 결과로 1이 나옴
         String sql = "SELECT COUNT(*) FROM POST WHERE post_id=? AND userid=?";
 
         try (Connection conn = DBUtil.getConnection();
@@ -178,12 +175,13 @@ public class PostDAO {
         return ok;
     }
 
+    // ===== SYSDATE → NOW() 변경 =====
     // 수정
     public int updatePost(PostDTO dto) {
         int result = 0;
 
         String sql = "UPDATE POST "
-                   + "SET title=?, content=?, stock_code=?, updated_at=SYSDATE "
+                   + "SET title=?, content=?, stock_code=?, updated_at=NOW() "
                    + "WHERE post_id=?";
 
         try (Connection conn = DBUtil.getConnection();
@@ -191,7 +189,7 @@ public class PostDAO {
 
             pstmt.setString(1, dto.getTitle());
             pstmt.setString(2, dto.getContent());
-            pstmt.setString(3, dto.getStockCode()); // null 가능
+            pstmt.setString(3, dto.getStockCode());
             pstmt.setInt(4, dto.getPostId());
 
             result = pstmt.executeUpdate();
@@ -219,20 +217,20 @@ public class PostDAO {
         }
         return result;
     }
-    // -------------------------------------------------검색어 있을때 목록
+
+    // ===== DBMS_LOB.INSTR → LOCATE 함수로 변경 =====
     // 카테고리 별 검색 후 게시글 개수
     public int getPostCountByCategorySearch(int categoryId, String field, String searchWord) {
-        int count = 0; //게시글 갯수
+        int count = 0;
         
-        // field 값이 title or content 경우
         String where;
         if ("content".equals(field)) {
-            where = "DBMS_LOB.INSTR(content, ?) > 0";
+            // MySQL: LOCATE 함수 사용 (대소문자 구분 없음)
+            where = "LOCATE(?, content) > 0";
         } else { // title
-            where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
+            where = "LOWER(title) LIKE CONCAT('%', LOWER(?), '%')";
         }
         
-        //카테고리 값에 맞는 게시글 검색
         String sql = "SELECT COUNT(*) FROM POST WHERE category_id = ? AND " + where;
 
         try (Connection conn = DBUtil.getConnection();
@@ -251,43 +249,39 @@ public class PostDAO {
         return count;
     }
     
+    // ===== ROW_NUMBER() + DBMS_LOB → MySQL LIMIT OFFSET + LOCATE =====
     // 카테고리 별 검색 게시물 목록 조회
     public List<PostDTO> selectPostListByCategorySearchPaging(
             int categoryId, String field, String searchWord,
             int page, int pageSize) {
 
         List<PostDTO> list = new ArrayList<>();
-        int start = (page - 1) * pageSize + 1;
-        int end   = page * pageSize;
+        int offset = (page - 1) * pageSize;
 
-        String where; // where에 field 값에 맞춰 조건 동적 생성
+        String where;
         if ("content".equals(field)) {
-            where = "DBMS_LOB.INSTR(content, ?) > 0";
-        } else { // title (또는 기타)
-            where = "LOWER(title) LIKE '%'||LOWER(?)||'%'";
+            where = "LOCATE(?, content) > 0";
+        } else { // title
+            where = "LOWER(title) LIKE CONCAT('%', LOWER(?), '%')";
         }
 
         String sql =
-            "SELECT * FROM ( " +
-            "   SELECT " +
-            			// 정렬해서 list.no 부여해줌  // 최신글이 list_no = 1
-            "          ROW_NUMBER() OVER (ORDER BY created_at DESC, post_id DESC) AS list_no, " +
-            "          post_id, userid, category_id, stock_code, title, created_at, view_count " +
-            "   FROM POST " + // 내림차순으로 정렬
-            "   WHERE category_id = ? AND " + where + //검색조건과 카테고리에 맞춤
-            ") " +
-            "WHERE list_no BETWEEN ? AND ? " +
-            "ORDER BY list_no ASC";
-        	//다시 오름차순으로
+            "SELECT post_id, userid, category_id, stock_code, title, created_at, view_count " +
+            "FROM POST " +
+            "WHERE category_id = ? AND " + where + " " +
+            "ORDER BY created_at DESC, post_id DESC " +
+            "LIMIT ? OFFSET ?";
+
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, categoryId);
             pstmt.setString(2, searchWord);
-            pstmt.setInt(3, start);
-            pstmt.setInt(4, end);
+            pstmt.setInt(3, pageSize);
+            pstmt.setInt(4, offset);
 
             try (ResultSet rs = pstmt.executeQuery()) {
+                int listNo = offset + 1;
                 while (rs.next()) {
                     PostDTO dto = new PostDTO();
                     dto.setPostId(rs.getInt("post_id"));
@@ -297,7 +291,7 @@ public class PostDAO {
                     dto.setTitle(rs.getString("title"));
                     dto.setCreatedAt(rs.getDate("created_at"));
                     dto.setViewCount(rs.getInt("view_count"));
-                    dto.setListNo(rs.getInt("list_no"));
+                    dto.setListNo(listNo++);
                     list.add(dto);
                 }
             }
@@ -307,6 +301,4 @@ public class PostDAO {
 
         return list;
     }
-
-    
 }

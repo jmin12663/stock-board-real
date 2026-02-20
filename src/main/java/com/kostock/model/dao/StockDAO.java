@@ -13,26 +13,24 @@ import com.kostock.util.DBUtil;
 
 public class StockDAO {
 
-       
+    // ===== LAG, ROW_NUMBER는 MySQL 8.0+에서 동일하게 사용 가능 =====   
     // 상단 지수 요약 조회 코드
     public List<IndexSummaryDTO> getIndexSummaries() throws SQLException {
         List<IndexSummaryDTO> list = new ArrayList<>();
         String sql =
             "SELECT stock_code, stock_name, close_price, prev_close, " +
-            "       close_price - prev_close AS diff, " + // 직전일과 종가 차이
-            		// 변동률 계산
-            "       ROUND((close_price - prev_close)/prev_close*100, 2) AS diff_rate " + 
+            "       close_price - prev_close AS diff, " +
+            "       ROUND((close_price - prev_close)/prev_close*100, 2) AS diff_rate " +
             "FROM ( " +
             "  SELECT s.stock_code, s.stock_name, " +
             "         p.price_date, p.close_price, " +
-            		  // ========각 종목을 날짜 순서로 종가를 가져온다
             "         LAG(p.close_price) OVER (PARTITION BY s.stock_code ORDER BY p.price_date) AS prev_close, " +
-            		  // ========각 종목을 날짜 내림차순으로 가져온뒤 번호를 최신날짜부터 1부터 매긴다
             "         ROW_NUMBER() OVER (PARTITION BY s.stock_code ORDER BY p.price_date DESC) AS rn " +
-            "  FROM STOCK s " + // =======stock + stock-price-d 합치기
+            "  FROM STOCK s " +
             "  JOIN STOCK_PRICE_D p ON s.stock_code = p.stock_code " +
             "  WHERE s.stock_code IN ('KOSPI', 'KOSDAQ') " +
-            ") WHERE rn = 1"; // 가장 최신 날짜 데이터 활용
+            ") AS subquery WHERE rn = 1";
+            // MySQL은 서브쿼리에 alias 필수
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -52,7 +50,7 @@ public class StockDAO {
         return list;
     }
     
-    
+    // ===== TRUNC(SYSDATE) → CURDATE() 변경 =====
     // 특정 지수 일봉 리스트 차트 만들기 용
     public List<StockPriceDTO> getDailyPrices(String code, int days) throws SQLException {
         List<StockPriceDTO> list = new ArrayList<>();
@@ -61,8 +59,7 @@ public class StockDAO {
             "SELECT price_date, close_price " +
             "FROM STOCK_PRICE_D " +
             "WHERE stock_code = ? " +
-            // 오늘 자정 기준으로 주식의 일별 주가를 가져옴
-            "  AND price_date >= TRUNC(SYSDATE) - ? " +
+            "  AND price_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY) " +
             "ORDER BY price_date";
 
         try (Connection conn = DBUtil.getConnection();
@@ -83,38 +80,26 @@ public class StockDAO {
         return list;
     }
     
-    // 지수 일봉 저장 메서드
+    // 지수 일봉 저장 메서드 (MySQL의 UPSERT 문법 사용)
     public void upsertDailyClosePrices(String stockCode, List<StockPriceDTO> list) throws SQLException {
-        String updateSql = """
-            UPDATE STOCK_PRICE_D
-               SET CLOSE_PRICE = ?
-             WHERE STOCK_CODE = ? AND PRICE_DATE = ?
-            """;
-        String insertSql = """
+        // MySQL: INSERT ... ON DUPLICATE KEY UPDATE 사용
+        String sql = """
             INSERT INTO STOCK_PRICE_D (STOCK_CODE, PRICE_DATE, CLOSE_PRICE)
             VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE CLOSE_PRICE = VALUES(CLOSE_PRICE)
             """;
 
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement updatePstmt = conn.prepareStatement(updateSql);
-             PreparedStatement insertPstmt = conn.prepareStatement(insertSql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             for (StockPriceDTO dto : list) {
                 java.sql.Date date = dto.getPriceDate();
-                // UPDATE 먼저 
-                updatePstmt.setDouble(1, dto.getClosePrice());
-                updatePstmt.setString(2, stockCode);
-                updatePstmt.setDate(3, date);
-
-                int updated = updatePstmt.executeUpdate();
-
-                // 업데이트된 행이 없으면 INSERT
-                if (updated == 0) {
-                    insertPstmt.setString(1, stockCode);
-                    insertPstmt.setDate(2, date);
-                    insertPstmt.setDouble(3, dto.getClosePrice());
-                    insertPstmt.executeUpdate();
-                }
+                
+                pstmt.setString(1, stockCode);
+                pstmt.setDate(2, date);
+                pstmt.setDouble(3, dto.getClosePrice());
+                
+                pstmt.executeUpdate();
             }
         }
     }

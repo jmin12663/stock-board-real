@@ -8,59 +8,59 @@ import com.kostock.model.dto.UserDTO;
 import com.kostock.util.DBUtil;
 
 public class UserDAO {
-	    // 회원가입
-	    public int insertUser(UserDTO dto) {
-	        int result = 0;
+    // 회원가입
+    public int insertUser(UserDTO dto) {
+        int result = 0;
 
-	        String sql = "INSERT INTO Users (userid, password, name, role, join_date) "
-	        		+ "VALUES (?, ?, ?, ?, SYSDATE)";
+        // ===== SYSDATE → NOW() 변경 =====
+        String sql = "INSERT INTO Users (userid, password, name, role, join_date) "
+        		+ "VALUES (?, ?, ?, ?, NOW())";
 
-	        try (Connection conn = DBUtil.getConnection();
-	             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-	            pstmt.setString(1, dto.getUserid());
-	            pstmt.setString(2, dto.getPassword());
-	            pstmt.setString(3, dto.getName());
-	            pstmt.setString(4, dto.getRole());
+            pstmt.setString(1, dto.getUserid());
+            pstmt.setString(2, dto.getPassword());
+            pstmt.setString(3, dto.getName());
+            pstmt.setString(4, dto.getRole());
 
-	            result = pstmt.executeUpdate(); // 데이터 저장
+            result = pstmt.executeUpdate(); // 데이터 저장
 
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	        return result;
-	    }
+        return result;
+    }
 
-	    // 로그인 체크
-	    public UserDTO login(String userid, String password) {
+    // 로그인 체크
+    public UserDTO login(String userid, String password) {
 
-	        UserDTO dto = null;
-	        String sql = "SELECT userid, password, name, role, join_date "
-	                   + "FROM USERS WHERE userid=? AND password=?";
+        UserDTO dto = null;
+        String sql = "SELECT userid, password, name, role, join_date "
+                   + "FROM USERS WHERE userid=? AND password=?";
 
-	        try (Connection conn = DBUtil.getConnection();
-	             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-	            pstmt.setString(1, userid);
-	            pstmt.setString(2, password);
+            pstmt.setString(1, userid);
+            pstmt.setString(2, password);
 
-	            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
-	            if (rs.next()) {
-	                dto = new UserDTO();
-	                dto.setUserid(rs.getString("userid"));
-	                dto.setPassword(rs.getString("password"));
-	                dto.setName(rs.getString("name"));
-	                dto.setRole(rs.getString("role"));
-	                dto.setJoinDate(rs.getDate("join_date"));
-	            }
+            if (rs.next()) {
+                dto = new UserDTO();
+                dto.setUserid(rs.getString("userid"));
+                dto.setPassword(rs.getString("password"));
+                dto.setName(rs.getString("name"));
+                dto.setRole(rs.getString("role"));
+                dto.setJoinDate(rs.getDate("join_date"));
+            }
 
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	        return dto;
-	    }
-	}
-
+        return dto;
+    }
+}
