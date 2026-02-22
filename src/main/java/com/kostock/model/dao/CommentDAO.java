@@ -81,5 +81,25 @@ public class CommentDAO {
         }
         return result;
     }
-
+    
+    // userid 별 작성한 댓글 개수 조
+    public int getUserCommentCount(String userid) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM COMMENTS WHERE userid = ?";
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userid);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) count = rs.getInt(1);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return count;
+    }
 }

@@ -63,4 +63,21 @@ public class UserDAO {
 
         return dto;
     }
+    // 회원 탈퇴 
+    public int deleteUser(String userid) {
+        int result = 0;
+        String sql = "DELETE FROM users WHERE userid = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userid);
+            result = pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 }

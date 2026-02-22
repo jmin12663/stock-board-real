@@ -301,4 +301,48 @@ public class PostDAO {
 
         return list;
     }
+    
+    // userid 별 게시글 개수 
+    public int getUserPostCount(String userid) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM POST WHERE userid = ?";
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userid);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) count = rs.getInt(1);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return count;
+    }
+    
+    // userid 총 조회수 
+    public int getUserTotalViews(String userid) {
+        int totalViews = 0;
+        String sql = "SELECT SUM(view_count) FROM POST WHERE userid = ?";
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userid);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    totalViews = rs.getInt(1);
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return totalViews;
+    }
 }

@@ -55,9 +55,9 @@
 	   	 <!-- 로그인 된 상태 -->
 	    	<span><%= loginUser.getName() %>님 (<%= loginUser.getRole() %>)</span>
 	    	<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
-		<% } %>
-	
-		<a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a>
+			<a href="<%= request.getContextPath() %>/member/mypage.do">마이페이지</a>			    	
+		<% } %>	
+		<!-- <a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a> -->
 	</div>
 </div>
 

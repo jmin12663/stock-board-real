@@ -155,4 +155,73 @@ public class TradeRecordDAO {
     private BigDecimal nvl(BigDecimal value) {
         return (value == null) ? BigDecimal.ZERO : value;
     }
+    
+    // 사용자의 기래 기록 수 조
+    public int getUserTradeCount(String userid) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM trade_record WHERE userid = ?";
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userid);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) count = rs.getInt(1);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return count;
+    }
+
+    // 사용자의 총 매수 금
+    public BigDecimal getUserTotalBuyAmount(String userid) {
+        BigDecimal total = BigDecimal.ZERO;
+        String sql = "SELECT SUM(quantity * price) FROM trade_record WHERE userid = ? AND trade_type = 'BUY'";
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userid);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    BigDecimal result = rs.getBigDecimal(1);
+                    if (result != null) total = result;
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return total;
+    }
+
+    // 사용자의 총 매도 금액 
+    public BigDecimal getUserTotalSellAmount(String userid) {
+        BigDecimal total = BigDecimal.ZERO;
+        String sql = "SELECT SUM(quantity * price) FROM trade_record WHERE userid = ? AND trade_type = 'SELL'";
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userid);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    BigDecimal result = rs.getBigDecimal(1);
+                    if (result != null) total = result;
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return total;
+    }
 }
