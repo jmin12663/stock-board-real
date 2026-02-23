@@ -929,10 +929,6 @@ body {
 
 /* ========================= 마이페이지 ========================= */
 
-/* ========================= */
-/* 마이페이지 전용 스타일 */
-/* ========================= */
-
 .mypage-container {
     margin: 40px auto;
     max-width: 900px;
@@ -1019,4 +1015,163 @@ body {
 
 .btn-danger:hover {
     background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(200, 35, 51, 0.3);
+}
+
+/* =====================================   마이페이지 수정 버튼==================== */
+
+.btn-primary {
+    background: #1a73e8;
+    color: #ffffff;
+    padding: 9px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.25);
+}
+
+/* hover */
+.btn-primary:hover {
+    background: #1669c1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+/* 클릭 */
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.2);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .btn-primary {
+        width: 100%;
+    }
+}
+
+/* ============================개인정보 수정 페이지=========================================================== */
+
+/* 전체 카드 래퍼 */
+.edit-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* 상단 타이틀 */
+.edit-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.edit-header p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 30px;
+}
+
+/* 섹션 카드 */
+.edit-section {
+    background: #f9fafc;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.edit-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #eee;
+}
+
+/* 폼 정렬 */
+.edit-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.edit-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+
+.edit-input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+
+/* 읽기 전용 input */
+.edit-input[disabled] {
+    background-color: #f1f3f4;
+    color: #777;
+}
+
+/* 버튼 정렬 */
+.edit-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* 성공 / 에러 메시지 */
+.edit-success {
+    background: #edf7ed;
+    border: 1px solid #b7dfb7;
+    color: #2e7d32;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.edit-error {
+    background: #fce8e6;
+    border: 1px solid #f7c1bd;
+    color: #c5221f;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+/* 구분선 */
+.edit-divider {
+    height: 1px;
+    background: #eee;
+    margin: 30px 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .edit-container {
+        padding: 25px 20px;
+    }
 }

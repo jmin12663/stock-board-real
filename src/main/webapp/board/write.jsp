@@ -1,6 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
-
 
 <%@ page import="com.kostock.model.dto.UserDTO" %>
 <%@ page import="com.kostock.model.dto.PostDTO" %>
@@ -16,6 +14,7 @@
 <head>
 <meta charset="UTF-8">
 <title>글쓰기</title>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 </head>
 <body>
 <div class="wrapper">

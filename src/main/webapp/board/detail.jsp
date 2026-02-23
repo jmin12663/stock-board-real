@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
 <%@ page import="com.kostock.model.dto.PostDTO" %>
 <%@ page import="java.util.List" %>
@@ -16,6 +15,8 @@
 <head>
 <meta charset="UTF-8">
 <title>게시글 상세보기</title>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+
 </head>
 <body>
 <div class="wrapper">

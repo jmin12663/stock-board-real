@@ -2,7 +2,6 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
 
 <!DOCTYPE html>
@@ -10,6 +9,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+
 </head>
 <body>
 <div class="wrapper">

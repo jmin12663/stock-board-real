@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
 <%@ page import="java.math.BigDecimal" %>
 <%@ page import="java.util.Map" %>
@@ -46,6 +45,8 @@
 <head>
 <meta charset="UTF-8">
 <title>매매기록 캘린더</title>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
+
 </head>
 <body>
 <div class="wrapper">

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
+<link rel="stylesheet" href="<%= request.getContextPath() %>/css/main.css">
 
 <%@ page import="com.kostock.model.dto.UserDTO" %>
 <%@ page import="java.math.BigDecimal" %>
@@ -38,16 +38,10 @@
 		    </div>
 		    
 		    <div class="nav-right">
-				<% if (loginUser == null) { %>
-			   	 <!-- 로그인 안된 상태 -->
-			   	 	<a href="<%= request.getContextPath() %>/member/login.jsp">로그인</a>
-			    	<a href="<%= request.getContextPath() %>/member/join.jsp">회원가입</a>
-				<% } else { %>
 			   	 <!-- 로그인 된 상태 -->
 			    	<span><%= loginUser.getName() %>님 (<%= loginUser.getRole() %>)</span>
 			    	<a href="<%= request.getContextPath() %>/member/logout.do">로그아웃</a>
 					<a href="<%= request.getContextPath() %>/member/mypage.do">마이페이지</a>			    	
-				<% } %>	
 				<!-- <a href="<%= request.getContextPath() %>/board/list.do?categoryId=1">홈페이지</a> -->
 			</div>
 		</div>
@@ -58,8 +52,15 @@
                 <%= loginUser.getName() %>님의 정보 
             </h1>
             <p>이름: <%= loginUser.getName() %></p>
-            <p>아이디: <%= loginUser.getUserid() %></p>
             <p>가입일: <%= loginUser.getJoinDate() %></p>
+            <p>아이디: <%= loginUser.getUserid() %></p>
+            <p>비밀번호: <%= loginUser.getPassword() %> </p>
+            <div class="edit-actions">
+			    <a href="<%= request.getContextPath() %>/member/editmypage.do" 
+			       class="btn-primary">
+			        수정하기
+			    </a>
+			</div>
         </div>
 	</div>
     <!--  
@@ -159,7 +160,8 @@
 			    </button>
 			</form>
         </div>
-    </div>
+        
+      </div>
 </div>
 </body>
 </html>
